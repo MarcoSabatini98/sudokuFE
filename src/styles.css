@@ -14,12 +14,12 @@
 
   /* Sudoku cells */
   --clr-cell-bg:      #ffffff;
-  --clr-cell-given:   #f0f0f0;
-  --clr-highlight:    #e3f2fd;
-  --clr-same-number:  #a8d4f5;
-  --clr-selected:     #64b5f6;
-  --clr-error-bg:     #ffebee;
-  --clr-error-text:   #d32f2f;
+  --clr-cell-given:   #e8e4d8;
+  --clr-highlight:    #dbeafe;
+  --clr-same-number:  #fef08a;
+  --clr-selected:     #3b82f6;
+  --clr-error-bg:     #fee2e2;
+  --clr-error-text:   #b91c1c;
 
   /* Number tiles */
   --clr-tile-bg:          #e8f4fd;
@@ -45,12 +45,12 @@
   --clr-shadow:       rgba(0, 0, 0, 0.4);
 
   --clr-cell-bg:      #1e1e2e;
-  --clr-cell-given:   #2a2a40;
-  --clr-highlight:    #1a2f4e;
-  --clr-same-number:  #163a62;
-  --clr-selected:     #1565c0;
-  --clr-error-bg:     #3b1010;
-  --clr-error-text:   #ef9a9a;
+  --clr-cell-given:   #302c1f;
+  --clr-highlight:    #1e3358;
+  --clr-same-number:  #443600;
+  --clr-selected:     #2563eb;
+  --clr-error-bg:     #3c0a0a;
+  --clr-error-text:   #f87171;
 
   --clr-tile-bg:          #1e2a3e;
   --clr-tile-border:      #2a4a6e;
@@ -98,6 +98,10 @@ a {
 .mdc-button,
 .mdc-data-table__header-cell,
 .mdc-data-table__cell {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.cdk-live-announcer-element {
   font-family: 'Inter', sans-serif !important;
 }
 
