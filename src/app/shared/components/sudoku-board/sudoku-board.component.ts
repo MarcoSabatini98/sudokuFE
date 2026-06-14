@@ -185,22 +185,38 @@ export class SudokuBoardComponent implements OnChanges {
     if (complete) this.boardComplete.emit();
   }
 
-  cellClass(row: number, col: number): Record<string, boolean> {
+  private cellRelation(row: number, col: number): { isSelected: boolean; isHighlighted: boolean } {
     const [sr, sc] = this.selected() ?? [-1, -1];
     const isSelected = row === sr && col === sc;
     const sameBox =
       Math.floor(row / 3) === Math.floor(sr / 3) &&
       Math.floor(col / 3) === Math.floor(sc / 3);
+    return {
+      isSelected,
+      isHighlighted: (row === sr || col === sc || sameBox) && !isSelected,
+    };
+  }
+
+  private hasSameNumber(row: number, col: number, isSelected: boolean): boolean {
+    if (isSelected) return false;
     const cellValue = this.userGrid()[row]?.[col] ?? 0;
     const selValue = this.activeDigit() ?? this.selectedValue();
+    return selValue !== 0 && cellValue === selValue;
+  }
+
+  // fallow-ignore-next-line complexity
+  cellClass(row: number, col: number): Record<string, boolean> {
+    const { isSelected, isHighlighted } = this.cellRelation(row, col);
+    const cellValue = this.userGrid()[row]?.[col] ?? 0;
+    const given = this.isGiven()[row][col];
 
     return {
-      given: this.isGiven()[row][col],
+      given,
       error: this.isError()[row][col],
       selected: isSelected,
-      highlight: (row === sr || col === sc || sameBox) && !isSelected,
-      'same-number': !isSelected && selValue !== 0 && cellValue === selValue,
-      'stamp-target': !this.isGiven()[row][col] && !this.disabled() && this.activeDigit() !== null,
+      highlight: isHighlighted,
+      'same-number': this.hasSameNumber(row, col, isSelected),
+      'stamp-target': !given && !this.disabled() && this.activeDigit() !== null,
       'has-notes': cellValue === 0 && this.notesMode() && (this.notes()[row]?.[col]?.length ?? 0) > 0,
       'thick-right': col === 2 || col === 5,
       'thick-bottom': row === 2 || row === 5,

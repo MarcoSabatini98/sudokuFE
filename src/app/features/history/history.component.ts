@@ -9,6 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { GameService } from '../../core/services/game/game.service';
 import { type Difficulty, DIFFICULTIES, DIFFICULTY_LABELS, type Game } from '../../shared/models/game.model';
 import { type PaginatedData } from '../../shared/models/api-response.model';
+import { formatTime } from '../../core/utils/time';
 
 @Component({
   selector: 'app-history',
@@ -56,11 +57,7 @@ export class HistoryComponent implements OnInit {
     this.load();
   }
 
-  formatTime(s: number): string {
-    const mm = String(Math.floor(s / 60)).padStart(2, '0');
-    const ss = String(s % 60).padStart(2, '0');
-    return `${mm}:${ss}`;
-  }
+  readonly formatTime = formatTime;
 
   formatDate(iso: string): string {
     return new Date(iso).toLocaleString('it-IT');

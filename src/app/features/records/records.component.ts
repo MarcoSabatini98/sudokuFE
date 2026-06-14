@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 
 import { RecordService } from '../../core/services/record/record.service';
 import { DIFFICULTIES, DIFFICULTY_LABELS } from '../../shared/models/game.model';
+import { formatTime } from '../../core/utils/time';
 import { type Record } from '../../shared/models/record.model';
 
 @Component({
@@ -36,9 +37,5 @@ export class RecordsComponent implements OnInit {
     });
   }
 
-  formatTime(s: number): string {
-    const mm = String(Math.floor(s / 60)).padStart(2, '0');
-    const ss = String(s % 60).padStart(2, '0');
-    return `${mm}:${ss}`;
-  }
+  readonly formatTime = formatTime;
 }
