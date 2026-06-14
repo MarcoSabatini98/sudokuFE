@@ -29,7 +29,7 @@
   flex-direction: column;
   gap: 0.75rem;
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
 }
 
 .difficulty-card {
@@ -46,42 +46,13 @@
 .card-content {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1.25rem !important;
+  justify-content: center;
+  padding: 1.5rem 1.25rem !important;
 }
 
 .diff-label {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--clr-text-primary);
-  min-width: 90px;
-}
-
-.diff-note {
-  font-size: 0.88rem;
-  color: var(--clr-text-secondary);
-  margin: 0;
-  flex: 1;
-}
-
-.diff-note.revealed {
-  font-style: italic;
-}
-
-.reveal-btn {
-  background: none;
-  border: 1px solid var(--clr-border-light);
-  color: var(--clr-text-secondary);
-  border-radius: 6px;
-  padding: 0.3rem 0.75rem;
-  font-size: 0.85rem;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  white-space: nowrap;
-}
-
-.reveal-btn:hover {
-  background: var(--clr-surface-2);
-  color: var(--clr-text-primary);
+  text-align: center;
 }

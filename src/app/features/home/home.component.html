@@ -12,17 +12,6 @@
       <mat-card class="difficulty-card" (click)="startGame(diff)">
         <mat-card-content class="card-content">
           <div class="diff-label">{{ labels[diff] }}</div>
-          @if (diff === 'easy' || diff === 'medium') {
-            <p class="diff-note">{{ difficultyNotes[diff] }}</p>
-          } @else {
-            @if (isRevealed(diff)) {
-              <p class="diff-note revealed">{{ difficultyNotes[diff] }}</p>
-            } @else {
-              <button class="reveal-btn" (click)="revealNote(diff, $event)">
-                {{ revealButtonLabel(diff) }}
-              </button>
-            }
-          }
         </mat-card-content>
       </mat-card>
     }

@@ -176,12 +176,16 @@ export class SudokuBoardComponent implements OnChanges {
       return copy;
     });
 
-    const sol = this.solution();
-    const prevWrong = prev !== 0 && sol.length > 0 && prev !== sol[row][col];
-    const newWrong = val !== 0 && sol.length > 0 && val !== sol[row][col];
-    if (!prevWrong && newWrong) this.errorOccurred.emit();
-
+    this.emitErrorIfNew(prev, val, row, col);
     this.checkCompletion();
+  }
+
+  private emitErrorIfNew(prev: number, val: number, row: number, col: number): void {
+    if (val === 0) return;
+    const sol = this.solution();
+    if (!sol.length) return;
+    if (prev !== 0 && prev !== sol[row][col]) return;
+    if (val !== sol[row][col]) this.errorOccurred.emit();
   }
 
   private checkCompletion(): void {

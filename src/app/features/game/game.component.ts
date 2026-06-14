@@ -43,6 +43,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
   private penaltyInterval?: ReturnType<typeof setInterval>;
 
+  private readonly notesUnlockMessages = [
+    'Le note? Sul serio? È un sudoku, mica rocket science...',
+    'Ancora?! Ok, un altro click e te le do. Ma è una vergogna.',
+    'Eccole. Spero tu sia contento di te stesso.',
+  ];
+
   readonly labels = DIFFICULTY_LABELS;
   readonly errorSlots = [0, 1, 2];
 
@@ -55,13 +61,14 @@ export class GameComponent implements OnInit, OnDestroy {
   readonly errorCount = signal(0);
   readonly penaltyActive = signal(false);
   readonly penaltySecondsLeft = signal(0);
+  readonly notesUnlockClicks = signal(0);
 
   readonly timerRunning = computed(
     () => this.timerStarted() && !this.paused() && !this.completed()
   );
 
-  readonly notesEnabled = computed(
-    () => this.difficulty === 'easy' || this.difficulty === 'medium'
+  readonly notesUnlocked = computed(
+    () => this.difficulty === 'easy' || this.difficulty === 'medium' || this.notesUnlockClicks() >= 3
   );
 
   readonly gameOverActive = computed(
@@ -93,6 +100,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.paused.set(false);
     this.elapsedSeconds.set(0);
     this.errorCount.set(0);
+    this.notesUnlockClicks.set(0);
     clearInterval(this.penaltyInterval);
     this.penaltyActive.set(false);
     this.timer()?.reset();
@@ -173,12 +181,24 @@ export class GameComponent implements OnInit, OnDestroy {
     this.board()?.undo();
   }
 
+  onNotesClick(): void {
+    if (this.notesUnlocked()) {
+      this.board()?.toggleNotes();
+      return;
+    }
+    const clicks = this.notesUnlockClicks();
+    const msg = this.notesUnlockMessages[clicks];
+    if (msg) this.snackBar.open(msg, undefined, { duration: 4000 });
+    this.notesUnlockClicks.update(n => n + 1);
+  }
+
   onRestart(): void {
     this.board()?.restart();
     this.timer()?.reset();
     this.timerStarted.set(false);
     this.paused.set(false);
     this.errorCount.set(0);
+    this.notesUnlockClicks.set(0);
     clearInterval(this.penaltyInterval);
     this.penaltyActive.set(false);
   }

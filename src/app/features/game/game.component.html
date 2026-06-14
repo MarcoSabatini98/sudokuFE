@@ -22,7 +22,7 @@
         [solution]="p.solution"
         [disabled]="boardDisabled()"
         [paused]="paused()"
-        [notesEnabled]="notesEnabled()"
+        [notesEnabled]="notesUnlocked()"
         (boardComplete)="onBoardComplete()"
         (firstMove)="onFirstMove()"
         (errorOccurred)="onErrorOccurred()"
@@ -46,14 +46,12 @@
         <button mat-raised-button (click)="newGame()" [disabled]="loading()">
           ✦ Nuova partita
         </button>
-        @if (notesEnabled()) {
-          <button mat-raised-button
-            [color]="(board()?.notesMode() ?? false) ? 'primary' : undefined"
-            [disabled]="!timerStarted() || paused() || completed() || gameOverActive()"
-            (click)="board()?.toggleNotes()">
-            ✏️ Note
-          </button>
-        }
+        <button mat-raised-button
+          [color]="(board()?.notesMode() ?? false) && notesUnlocked() ? 'primary' : undefined"
+          [disabled]="!timerStarted() || paused() || completed() || gameOverActive()"
+          (click)="onNotesClick()">
+          ✏️ Note
+        </button>
         @if (completed()) {
           <button mat-raised-button color="primary" (click)="onReplay()">
             ▶ Rigioca
