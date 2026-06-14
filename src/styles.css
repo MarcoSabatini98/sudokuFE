@@ -101,6 +101,10 @@ a {
   font-family: 'Inter', sans-serif !important;
 }
 
+.cdk-live-announcer-element {
+  font-family: 'Inter', sans-serif !important;
+}
+
 /* ── Angular Material dark overrides ───────────────────── */
 
 .dark-theme .mat-mdc-card,
