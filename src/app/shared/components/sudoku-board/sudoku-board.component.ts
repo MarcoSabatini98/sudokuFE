@@ -158,6 +158,7 @@ export class SudokuBoardComponent implements OnChanges {
   }
 
   private writeCell(row: number, col: number, val: number): void {
+    if (this.isGiven()[row][col]) return;
     const prev = this.userGrid()[row][col];
     if (prev === val) return;
 
