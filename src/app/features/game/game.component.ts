@@ -17,6 +17,7 @@ import { TimerComponent } from '../../shared/components/timer/timer.component';
 import { SudokuService } from '../../core/services/sudoku/sudoku.service';
 import { GameService } from '../../core/services/game/game.service';
 import { type Difficulty, DIFFICULTY_LABELS, type SudokuPuzzle } from '../../shared/models/game.model';
+import { formatTime } from '../../core/utils/time';
 
 @Component({
   selector: 'app-game',
@@ -138,9 +139,5 @@ export class GameComponent implements OnInit {
     this.loadPuzzle();
   }
 
-  formatTime(s: number): string {
-    const mm = String(Math.floor(s / 60)).padStart(2, '0');
-    const ss = String(s % 60).padStart(2, '0');
-    return `${mm}:${ss}`;
-  }
+  readonly formatTime = formatTime;
 }

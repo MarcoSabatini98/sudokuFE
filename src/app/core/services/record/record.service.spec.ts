@@ -1,13 +1,9 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient } from '@angular/common/http';
-
 import { RecordService } from './record.service';
 import { Record } from '../../../shared/models/record.model';
+import { setupHttpServiceTest } from '../../../core/utils/testing/http-service-test';
 
 describe('RecordService', () => {
-  let service: RecordService;
-  let httpMock: HttpTestingController;
+  const { service, mock } = setupHttpServiceTest(RecordService);
 
   const mockRecord: Record = {
     id: 1,
@@ -17,37 +13,27 @@ describe('RecordService', () => {
     updated_at: new Date().toISOString(),
   };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
-    });
-    service = TestBed.inject(RecordService);
-    httpMock = TestBed.inject(HttpTestingController);
-  });
-
-  afterEach(() => httpMock.verify());
-
   it('should be created', () => {
-    expect(service).toBeTruthy();
+    expect(service()).toBeTruthy();
   });
 
   it('getAll should call GET /records', () => {
-    service.getAll().subscribe((records) => {
+    service().getAll().subscribe((records) => {
       expect(records).toHaveLength(1);
       expect(records[0].difficulty).toBe('easy');
     });
 
-    const req = httpMock.expectOne((r) => r.url.endsWith('/records'));
+    const req = mock().expectOne((r) => r.url.endsWith('/records'));
     expect(req.request.method).toBe('GET');
     req.flush({ status: 'success', success: true, data: [mockRecord] });
   });
 
   it('getByDifficulty should call GET /records/:difficulty', () => {
-    service.getByDifficulty('easy').subscribe((record) => {
+    service().getByDifficulty('easy').subscribe((record) => {
       expect(record?.best_time_seconds).toBe(90);
     });
 
-    const req = httpMock.expectOne((r) => r.url.endsWith('/records/easy'));
+    const req = mock().expectOne((r) => r.url.endsWith('/records/easy'));
     expect(req.request.method).toBe('GET');
     req.flush({ status: 'success', success: true, data: mockRecord });
   });
