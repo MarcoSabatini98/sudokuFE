@@ -5,7 +5,8 @@
         <div
           class="cell"
           [ngClass]="cellClass(ri, ci)"
-          tabindex="0"
+          [attr.tabindex]="isGiven()[ri][ci] ? -1 : 0"
+          [attr.aria-readonly]="isGiven()[ri][ci] || null"
           [attr.aria-label]="'Riga ' + (ri + 1) + ' colonna ' + (ci + 1)"
           (click)="onCellClick(ri, ci)"
           (focus)="onCellFocus(ri, ci)"
