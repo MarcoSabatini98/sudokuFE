@@ -1,0 +1,186 @@
+.board-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.sudoku-grid {
+  display: inline-grid;
+  grid-template-columns: repeat(9, 52px);
+  border: 3px solid var(--clr-grid-border);
+}
+
+.cell {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--clr-border);
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--clr-cell-bg);
+  color: var(--clr-text-primary);
+  outline: none;
+  transition: background 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.cell.given {
+  color: var(--clr-text-primary);
+  font-weight: 700;
+  background: var(--clr-cell-given);
+  cursor: default;
+}
+
+/* Cascade: highlight < same-number < selected */
+
+.cell.highlight {
+  background: var(--clr-highlight);
+}
+
+.cell.same-number {
+  background: var(--clr-same-number);
+}
+
+.cell.selected,
+.cell:focus {
+  background: var(--clr-selected);
+}
+
+.cell.error {
+  color: var(--clr-error-text);
+  background: var(--clr-error-bg);
+}
+
+.cell.stamp-target {
+  cursor: crosshair;
+}
+
+.cell.thick-right {
+  border-right: 3px solid var(--clr-grid-border);
+}
+
+.cell.thick-bottom {
+  border-bottom: 3px solid var(--clr-grid-border);
+}
+
+/* ── Notes inside cell ──────────────────────────────────── */
+
+.cell.has-notes {
+  padding: 1px;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.notes-display {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.notes-num {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #1565c0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.dark-theme .notes-num {
+  color: #90caf9;
+}
+
+/* ── Pause overlay ──────────────────────────────────────── */
+
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--clr-overlay);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 10;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+}
+
+.pause-icon {
+  font-size: 2.5rem;
+}
+
+/* ── Number bar ──────────────────────────────────────────── */
+
+.number-bar {
+  display: flex;
+  width: calc(52px * 9 + 6px);
+  margin-top: 12px;
+  justify-content: space-between;
+}
+
+.number-tile {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--clr-tile-bg);
+  border: 2px solid var(--clr-tile-border);
+  cursor: pointer;
+  transition: opacity 0.2s, background 0.2s, border-color 0.15s, transform 0.1s;
+  gap: 1px;
+  user-select: none;
+}
+
+.number-tile:hover:not(.complete) {
+  background: var(--clr-tile-hover);
+  border-color: var(--clr-tile-border-hover);
+}
+
+.number-tile.active {
+  background: #1976d2;
+  border-color: #1565c0;
+  transform: scale(1.08);
+}
+
+.number-tile.active .number-tile-digit {
+  color: #fff;
+}
+
+.number-tile.active .number-tile-remaining {
+  color: #bbdefb;
+}
+
+.number-tile.complete {
+  opacity: 0.25;
+  background: var(--clr-cell-given);
+  border-color: var(--clr-border);
+  cursor: default;
+}
+
+.number-tile-digit {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+  line-height: 1;
+}
+
+.number-tile-remaining {
+  font-size: 0.65rem;
+  color: #1976d2;
+  font-weight: 700;
+  line-height: 1;
+}

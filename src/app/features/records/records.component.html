@@ -1,0 +1,36 @@
+<div class="records-container">
+  <div class="records-header">
+    <a mat-button routerLink="/">← Home</a>
+    <h2>Record personali</h2>
+    <a mat-button routerLink="/history">Cronologia →</a>
+  </div>
+
+  @if (loading()) {
+    <p class="loading-msg">Caricamento...</p>
+  }
+
+  @if (!loading()) {
+    <div class="records-grid">
+      @for (diff of difficulties; track diff) {
+        <mat-card class="record-card">
+          <mat-card-header>
+            <mat-card-title>{{ labels[diff] }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (recordMap().get(diff); as rec) {
+              <div class="record-time">{{ formatTime(rec.best_time_seconds) }}</div>
+              <div class="record-date">{{ rec.updated_at | date: 'dd/MM/yyyy' }}</div>
+            } @else {
+              <div class="no-record">Nessun record</div>
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <a mat-button [routerLink]="['/game']" [queryParams]="{ difficulty: diff }">
+              Gioca
+            </a>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

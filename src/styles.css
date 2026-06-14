@@ -1,1 +1,155 @@
-/* You can add global styles to this file, and also import other style files */
+/* ── CSS custom properties ──────────────────────────────── */
+
+:root {
+  --clr-bg:           #fafafa;
+  --clr-surface:      #ffffff;
+  --clr-surface-2:    #f0f4ff;
+  --clr-text-primary: #1a1a2e;
+  --clr-text-secondary: #666666;
+  --clr-text-muted:   #999999;
+  --clr-border:       #aaaaaa;
+  --clr-border-light: #e0e8ff;
+  --clr-grid-border:  #1a1a2e;
+  --clr-shadow:       rgba(0, 0, 0, 0.09);
+
+  /* Sudoku cells */
+  --clr-cell-bg:      #ffffff;
+  --clr-cell-given:   #f0f0f0;
+  --clr-highlight:    #e3f2fd;
+  --clr-same-number:  #a8d4f5;
+  --clr-selected:     #64b5f6;
+  --clr-error-bg:     #ffebee;
+  --clr-error-text:   #d32f2f;
+
+  /* Number tiles */
+  --clr-tile-bg:          #e8f4fd;
+  --clr-tile-border:      #90caf9;
+  --clr-tile-hover:       #bbdefb;
+  --clr-tile-border-hover:#42a5f5;
+
+  /* Misc */
+  --clr-overlay: rgba(255, 255, 255, 0.92);
+  --clr-navbar-bg: #ffffff;
+}
+
+.dark-theme {
+  --clr-bg:           #13131f;
+  --clr-surface:      #1e1e2e;
+  --clr-surface-2:    #252538;
+  --clr-text-primary: #e2e2f0;
+  --clr-text-secondary: #9090a8;
+  --clr-text-muted:   #606078;
+  --clr-border:       #3a3a52;
+  --clr-border-light: #2a2a40;
+  --clr-grid-border:  #c0c0d8;
+  --clr-shadow:       rgba(0, 0, 0, 0.4);
+
+  --clr-cell-bg:      #1e1e2e;
+  --clr-cell-given:   #2a2a40;
+  --clr-highlight:    #1a2f4e;
+  --clr-same-number:  #163a62;
+  --clr-selected:     #1565c0;
+  --clr-error-bg:     #3b1010;
+  --clr-error-text:   #ef9a9a;
+
+  --clr-tile-bg:          #1e2a3e;
+  --clr-tile-border:      #2a4a6e;
+  --clr-tile-hover:       #1a3050;
+  --clr-tile-border-hover:#3a6090;
+
+  --clr-overlay: rgba(13, 13, 25, 0.92);
+  --clr-navbar-bg: #1a1a2e;
+}
+
+/* ── Base ───────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--clr-bg);
+  color: var(--clr-text-primary);
+  transition: background 0.2s, color 0.2s;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── Material font override ─────────────────────────────── */
+
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-icon-button,
+.mat-mdc-fab,
+.mat-toolbar,
+.mat-mdc-card,
+.mat-mdc-select,
+.mat-mdc-option,
+.mat-mdc-table,
+.mat-mdc-header-cell,
+.mat-mdc-cell,
+.mat-mdc-snack-bar-container,
+.mdc-button,
+.mdc-data-table__header-cell,
+.mdc-data-table__cell {
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* ── Angular Material dark overrides ───────────────────── */
+
+.dark-theme .mat-mdc-card,
+.dark-theme .mdc-card {
+  background: var(--clr-surface) !important;
+  color: var(--clr-text-primary) !important;
+}
+
+.dark-theme .mat-mdc-card-title,
+.dark-theme .mat-mdc-card-subtitle {
+  color: var(--clr-text-primary) !important;
+}
+
+.dark-theme .mat-mdc-raised-button:not([color]) {
+  background: var(--clr-surface-2) !important;
+  color: var(--clr-text-primary) !important;
+}
+
+.dark-theme .mat-mdc-button:not([color]) {
+  color: var(--clr-text-primary) !important;
+}
+
+.dark-theme .mat-mdc-select-value,
+.dark-theme .mat-mdc-select-placeholder {
+  color: var(--clr-text-primary) !important;
+}
+
+.dark-theme .mat-mdc-option {
+  background: var(--clr-surface) !important;
+  color: var(--clr-text-primary) !important;
+}
+
+.dark-theme .mat-mdc-select-panel {
+  background: var(--clr-surface) !important;
+}
+
+.dark-theme .mat-mdc-form-field-subscript-wrapper {
+  background: transparent !important;
+}
+
+.dark-theme .mdc-line-ripple::before {
+  border-bottom-color: var(--clr-border) !important;
+}
+
+.dark-theme .mat-mdc-progress-spinner circle {
+  stroke: #90caf9 !important;
+}
+
+.dark-theme .mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  background: var(--clr-surface-2) !important;
+  color: var(--clr-text-primary) !important;
+}

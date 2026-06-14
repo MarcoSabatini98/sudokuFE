@@ -1,0 +1,57 @@
+.records-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem;
+  gap: 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.records-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.records-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+}
+
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+
+.record-card {
+  text-align: center;
+}
+
+.record-time {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+  font-variant-numeric: tabular-nums;
+  margin: 0.5rem 0;
+}
+
+.record-date {
+  font-size: 0.85rem;
+  color: var(--clr-text-muted);
+}
+
+.no-record {
+  font-size: 1rem;
+  color: var(--clr-text-muted);
+  padding: 1rem 0;
+}
+
+.loading-msg {
+  color: var(--clr-text-secondary);
+}

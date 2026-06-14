@@ -1,0 +1,50 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 1rem;
+  gap: 1.5rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--clr-text-secondary);
+  margin: 0;
+}
+
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 180px);
+  gap: 1rem;
+}
+
+.difficulty-card {
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  text-align: center;
+}
+
+.difficulty-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px var(--clr-shadow);
+}
+
+.diff-label {
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 1.5rem 0;
+  color: var(--clr-text-primary);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}

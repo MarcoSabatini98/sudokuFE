@@ -1,0 +1,71 @@
+<div class="game-container">
+  <div class="game-header">
+    <a mat-button routerLink="/">← Home</a>
+    <h2>{{ labels[difficulty] }}</h2>
+    <div class="timer-wrap">
+      <app-timer [running]="timerRunning()" (tick)="onTimerTick($event)" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-wrap">
+      <mat-progress-spinner mode="indeterminate" diameter="60" />
+      <p>Generazione puzzle...</p>
+    </div>
+  }
+
+  @if (!loading() && puzzle(); as p) {
+    <div class="board-area">
+      <app-sudoku-board
+        [puzzle]="p.puzzle"
+        [solution]="p.solution"
+        [disabled]="completed()"
+        [paused]="paused()"
+        [notesEnabled]="notesEnabled()"
+        (boardComplete)="onBoardComplete()"
+        (firstMove)="onFirstMove()"
+      />
+      <div class="side-panel">
+        <button mat-raised-button (click)="togglePause()" [disabled]="completed()">
+          {{ paused() ? '▶ Riprendi' : '⏸ Pausa' }}
+        </button>
+        <button mat-raised-button (click)="onUndo()" [disabled]="paused() || completed()">
+          ↩ Annulla
+        </button>
+        <button mat-raised-button (click)="onRestart()">
+          ↺ Ricomincia
+        </button>
+        <button mat-raised-button (click)="newGame()" [disabled]="loading()">
+          ✦ Nuova partita
+        </button>
+        @if (notesEnabled()) {
+          <button mat-raised-button
+            [color]="(board()?.notesMode() ?? false) ? 'primary' : undefined"
+            [disabled]="!timerStarted() || paused() || completed()"
+            (click)="board()?.toggleNotes()">
+            ✏️ Note
+          </button>
+        }
+        @if (completed()) {
+          <button mat-raised-button color="primary" (click)="onReplay()">
+            ▶ Rigioca
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  @if (completed()) {
+    <div class="completed-banner">
+      🎉 Puzzle completato in {{ formatTime(elapsedSeconds()) }}!
+    </div>
+  }
+
+  <div class="game-actions">
+    <button mat-raised-button color="primary" (click)="newGame()" [disabled]="loading()">
+      Nuovo Puzzle
+    </button>
+    <a mat-button routerLink="/records">Record</a>
+    <a mat-button routerLink="/history">Cronologia</a>
+  </div>
+</div>

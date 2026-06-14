@@ -1,0 +1,36 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--clr-navbar-bg) !important;
+  color: var(--clr-text-primary) !important;
+  border-bottom: 1px solid var(--clr-border-light);
+  transition: background 0.2s, color 0.2s;
+}
+
+.brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+  text-decoration: none;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.theme-btn {
+  font-size: 1.1rem;
+  min-width: 40px;
+}
+
+.active-link {
+  background: rgba(25, 118, 210, 0.12);
+  border-radius: 4px;
+}
+
+.app-content {
+  min-height: calc(100vh - 64px);
+  background: var(--clr-bg);
+  transition: background 0.2s;
+}

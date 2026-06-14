@@ -1,0 +1,55 @@
+<div class="board-wrap">
+  <div class="sudoku-grid">
+    @for (row of userGrid(); let ri = $index; track ri) {
+      @for (cell of row; let ci = $index; track ci) {
+        <div
+          class="cell"
+          [ngClass]="cellClass(ri, ci)"
+          tabindex="0"
+          [attr.aria-label]="'Riga ' + (ri + 1) + ' colonna ' + (ci + 1)"
+          (click)="onCellClick(ri, ci)"
+          (focus)="onCellFocus(ri, ci)"
+          (keydown)="onCellKeydown(ri, ci, $event)"
+        >
+          @if (cell !== 0) {
+            <span>{{ cell }}</span>
+          } @else if (notesMode() && notes()[ri][ci].length > 0) {
+            <div class="notes-display">
+              @for (n of digits; track n) {
+                <span class="notes-num">{{ notes()[ri][ci].includes(n) ? n : '' }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  @if (paused()) {
+    <div class="pause-overlay">
+      <span class="pause-icon">⏸</span>
+      <span>In pausa</span>
+    </div>
+  }
+</div>
+
+<div class="number-bar">
+  @for (n of digits; track n) {
+    <div
+      class="number-tile"
+      [class.complete]="numberCounts()[n] >= 9"
+      [class.active]="activeDigit() === n"
+      tabindex="0"
+      role="button"
+      (click)="onDigitSelect(n)"
+      (keydown.enter)="onDigitSelect(n)"
+      (keydown.space)="onDigitSelect(n)"
+    >
+      <span class="number-tile-digit">{{ n }}</span>
+      @if (numberCounts()[n] < 9) {
+        <span class="number-tile-remaining">{{ 9 - numberCounts()[n] }}</span>
+      }
+    </div>
+  }
+</div>
+

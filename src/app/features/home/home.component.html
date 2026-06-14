@@ -1,0 +1,19 @@
+<div class="home-container">
+  <h1 class="title">Sudoku</h1>
+  <p class="subtitle">Scegli la difficoltà per iniziare</p>
+
+  <div class="difficulty-grid">
+    @for (diff of difficulties; track diff) {
+      <mat-card class="difficulty-card" (click)="startGame(diff)">
+        <mat-card-content>
+          <div class="diff-label">{{ labels[diff] }}</div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <div class="nav-links">
+    <a mat-button routerLink="/history">Cronologia</a>
+    <a mat-button routerLink="/records">Record</a>
+  </div>
+</div>
