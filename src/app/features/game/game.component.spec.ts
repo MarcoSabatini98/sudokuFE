@@ -14,6 +14,13 @@ const MOCK_PUZZLE: SudokuPuzzle = {
   solution: Array.from({ length: 9 }, (_, r) => Array.from({ length: 9 }, (_, c) => ((r + c) % 9) + 1)),
 };
 
+const defaultProviders = () => [
+  provideRouter([]),
+  provideAnimationsAsync(),
+  { provide: SudokuService, useValue: { generate: vi.fn(() => of(MOCK_PUZZLE)) } },
+  { provide: GameService, useValue: { save: vi.fn(() => of({ id: 1 })) } },
+];
+
 describe('GameComponent', () => {
   const mockSudokuService = { generate: vi.fn(() => of(MOCK_PUZZLE)) };
   const mockGameService = { save: vi.fn(() => of({ id: 1 })) };
@@ -62,5 +69,51 @@ describe('GameComponent', () => {
     });
 
     expect(screen.getByText('Errore nel caricamento del puzzle')).toBeTruthy();
+  });
+
+  it('should start with errorCount 0', async () => {
+    const { fixture } = await render(GameComponent, { providers: defaultProviders() });
+    expect(fixture.componentInstance.errorCount()).toBe(0);
+  });
+
+  it('should increment errorCount on onErrorOccurred', async () => {
+    const { fixture } = await render(GameComponent, { providers: defaultProviders() });
+    const comp = fixture.componentInstance;
+    comp.onErrorOccurred();
+    expect(comp.errorCount()).toBe(1);
+  });
+
+  it('should activate gameOverActive and boardDisabled when errorCount reaches 3', async () => {
+    const { fixture } = await render(GameComponent, { providers: defaultProviders() });
+    const comp = fixture.componentInstance;
+    comp.onErrorOccurred();
+    comp.onErrorOccurred();
+    comp.onErrorOccurred();
+    expect(comp.gameOverActive()).toBe(true);
+    expect(comp.boardDisabled()).toBe(true);
+  });
+
+  it('should reset to 2 errors and activate penalty on continue', async () => {
+    const { fixture } = await render(GameComponent, { providers: defaultProviders() });
+    const comp = fixture.componentInstance;
+    comp.onErrorOccurred();
+    comp.onErrorOccurred();
+    comp.onErrorOccurred();
+    comp.onContinueAfterErrors();
+    expect(comp.errorCount()).toBe(2);
+    expect(comp.penaltyActive()).toBe(true);
+    expect(comp.gameOverActive()).toBe(false);
+    comp['penaltyInterval'] && clearInterval(comp['penaltyInterval']);
+  });
+
+  it('should reset errorCount to 0 on restart after errors', async () => {
+    const { fixture } = await render(GameComponent, { providers: defaultProviders() });
+    const comp = fixture.componentInstance;
+    comp.onErrorOccurred();
+    comp.onErrorOccurred();
+    comp.onErrorOccurred();
+    comp.onRestartAfterErrors();
+    expect(comp.errorCount()).toBe(0);
+    expect(comp.gameOverActive()).toBe(false);
   });
 });

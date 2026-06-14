@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  OnDestroy,
   OnInit,
   signal,
   viewChild,
@@ -34,13 +35,16 @@ import { formatTime } from '../../core/utils/time';
   templateUrl: './game.component.html',
   styleUrl: './game.component.css',
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly sudokuService = inject(SudokuService);
   private readonly gameService = inject(GameService);
   private readonly snackBar = inject(MatSnackBar);
 
+  private penaltyInterval?: ReturnType<typeof setInterval>;
+
   readonly labels = DIFFICULTY_LABELS;
+  readonly errorSlots = [0, 1, 2];
 
   readonly puzzle = signal<SudokuPuzzle | null>(null);
   readonly loading = signal(false);
@@ -48,6 +52,9 @@ export class GameComponent implements OnInit {
   readonly elapsedSeconds = signal(0);
   readonly paused = signal(false);
   readonly timerStarted = signal(false);
+  readonly errorCount = signal(0);
+  readonly penaltyActive = signal(false);
+  readonly penaltySecondsLeft = signal(0);
 
   readonly timerRunning = computed(
     () => this.timerStarted() && !this.paused() && !this.completed()
@@ -55,6 +62,14 @@ export class GameComponent implements OnInit {
 
   readonly notesEnabled = computed(
     () => this.difficulty === 'easy' || this.difficulty === 'medium'
+  );
+
+  readonly gameOverActive = computed(
+    () => this.errorCount() >= 3 && !this.penaltyActive()
+  );
+
+  readonly boardDisabled = computed(
+    () => this.completed() || this.penaltyActive() || this.errorCount() >= 3
   );
 
   readonly timer = viewChild(TimerComponent);
@@ -67,12 +82,19 @@ export class GameComponent implements OnInit {
     this.loadPuzzle();
   }
 
+  ngOnDestroy(): void {
+    clearInterval(this.penaltyInterval);
+  }
+
   loadPuzzle(): void {
     this.loading.set(true);
     this.completed.set(false);
     this.timerStarted.set(false);
     this.paused.set(false);
     this.elapsedSeconds.set(0);
+    this.errorCount.set(0);
+    clearInterval(this.penaltyInterval);
+    this.penaltyActive.set(false);
     this.timer()?.reset();
 
     this.sudokuService.generate(this.difficulty).subscribe({
@@ -116,6 +138,33 @@ export class GameComponent implements OnInit {
     });
   }
 
+  onErrorOccurred(): void {
+    this.errorCount.update(n => n + 1);
+  }
+
+  onContinueAfterErrors(): void {
+    this.errorCount.set(2);
+    this.penaltyActive.set(true);
+    this.penaltySecondsLeft.set(5);
+
+    this.penaltyInterval = setInterval(() => {
+      const left = this.penaltySecondsLeft() - 1;
+      if (left <= 0) {
+        clearInterval(this.penaltyInterval);
+        this.penaltyActive.set(false);
+      } else {
+        this.penaltySecondsLeft.set(left);
+      }
+    }, 1000);
+  }
+
+  onRestartAfterErrors(): void {
+    clearInterval(this.penaltyInterval);
+    this.penaltyActive.set(false);
+    this.errorCount.set(0);
+    this.onRestart();
+  }
+
   togglePause(): void {
     this.paused.update(p => !p);
   }
@@ -129,6 +178,9 @@ export class GameComponent implements OnInit {
     this.timer()?.reset();
     this.timerStarted.set(false);
     this.paused.set(false);
+    this.errorCount.set(0);
+    clearInterval(this.penaltyInterval);
+    this.penaltyActive.set(false);
   }
 
   onReplay(): void {

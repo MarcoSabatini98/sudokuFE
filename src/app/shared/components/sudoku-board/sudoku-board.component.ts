@@ -29,6 +29,7 @@ export class SudokuBoardComponent implements OnChanges {
 
   boardComplete = output<void>();
   firstMove = output<void>();
+  errorOccurred = output<void>();
 
   readonly digits = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -174,6 +175,12 @@ export class SudokuBoardComponent implements OnChanges {
       copy[row][col] = val;
       return copy;
     });
+
+    const sol = this.solution();
+    const prevWrong = prev !== 0 && sol.length > 0 && prev !== sol[row][col];
+    const newWrong = val !== 0 && sol.length > 0 && val !== sol[row][col];
+    if (!prevWrong && newWrong) this.errorOccurred.emit();
+
     this.checkCompletion();
   }
 

@@ -20,20 +20,27 @@
       <app-sudoku-board
         [puzzle]="p.puzzle"
         [solution]="p.solution"
-        [disabled]="completed()"
+        [disabled]="boardDisabled()"
         [paused]="paused()"
         [notesEnabled]="notesEnabled()"
         (boardComplete)="onBoardComplete()"
         (firstMove)="onFirstMove()"
+        (errorOccurred)="onErrorOccurred()"
       />
       <div class="side-panel">
-        <button mat-raised-button (click)="togglePause()" [disabled]="completed()">
+        <div class="error-counter">
+          <span class="error-label">Errori</span>
+          @for (i of errorSlots; track i) {
+            <span class="error-dot" [class.filled]="errorCount() > i"></span>
+          }
+        </div>
+        <button mat-raised-button (click)="togglePause()" [disabled]="completed() || gameOverActive()">
           {{ paused() ? '▶ Riprendi' : '⏸ Pausa' }}
         </button>
-        <button mat-raised-button (click)="onUndo()" [disabled]="paused() || completed()">
+        <button mat-raised-button (click)="onUndo()" [disabled]="paused() || completed() || gameOverActive()">
           ↩ Annulla
         </button>
-        <button mat-raised-button (click)="onRestart()">
+        <button mat-raised-button (click)="onRestartAfterErrors()">
           ↺ Ricomincia
         </button>
         <button mat-raised-button (click)="newGame()" [disabled]="loading()">
@@ -42,7 +49,7 @@
         @if (notesEnabled()) {
           <button mat-raised-button
             [color]="(board()?.notesMode() ?? false) ? 'primary' : undefined"
-            [disabled]="!timerStarted() || paused() || completed()"
+            [disabled]="!timerStarted() || paused() || completed() || gameOverActive()"
             (click)="board()?.toggleNotes()">
             ✏️ Note
           </button>
@@ -53,6 +60,29 @@
           </button>
         }
       </div>
+
+      @if (gameOverActive()) {
+        <div class="game-over-overlay">
+          <div class="game-over-content">
+            <span class="game-over-icon">💀</span>
+            <h3>Troppi errori!</h3>
+            <p>Hai commesso 3 errori su 3.</p>
+            <div class="game-over-actions">
+              <button mat-raised-button (click)="onRestartAfterErrors()">↺ Ricomincia da capo</button>
+              <button mat-raised-button color="warn" (click)="onContinueAfterErrors()">⚡ Continua (−5s penalità)</button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (penaltyActive()) {
+        <div class="penalty-overlay">
+          <div class="penalty-content">
+            <span class="penalty-seconds">{{ penaltySecondsLeft() }}</span>
+            <p>Penalità in corso...</p>
+          </div>
+        </div>
+      }
     </div>
   }
 
