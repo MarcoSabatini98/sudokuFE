@@ -132,6 +132,24 @@ ng test --watch=false
 ng lint
 ```
 
+### Web App Desktop (Windows)
+
+Per avviare il gioco con un doppio click dal Desktop, senza aprire terminali manualmente.
+
+**Prerequisito:** clona entrambe le repo nella stessa cartella (es. `sudokuM/sudokuFE` e `sudokuM/sudokuBE`). Se le cloni in cartelle separate, apri `launch-sudoku.ps1` e modifica la variabile `$BE_PATH` con il path corretto del backend.
+
+**Setup (una volta sola):**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "create-shortcut.ps1"
+```
+
+Crea il collegamento **Sudoku** sul Desktop con l'icona del gioco.
+
+**Utilizzo:** doppio click su `Sudoku` → backend e frontend partono in background → il browser si apre automaticamente su `http://localhost:4200`.
+
+> Se backend e frontend sono già in esecuzione, apre direttamente il browser senza riavviarli.
+
 ---
 
 ## 🇬🇧 English
@@ -261,3 +279,21 @@ ng test --watch=false
 # Lint
 ng lint
 ```
+
+### Desktop Web App (Windows)
+
+Launch the game with a double-click from the Desktop, without opening terminals manually.
+
+**Prerequisite:** clone both repos in the same folder (e.g. `sudokuM/sudokuFE` and `sudokuM/sudokuBE`). If you clone them in different locations, open `launch-sudoku.ps1` and update the `$BE_PATH` variable to point to your backend folder.
+
+**One-time setup:**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "create-shortcut.ps1"
+```
+
+Creates a **Sudoku** shortcut on the Desktop with the game icon.
+
+**Usage:** double-click `Sudoku` → backend and frontend start in the background → browser opens automatically at `http://localhost:4200`.
+
+> If backend and frontend are already running, it opens the browser directly without restarting them.
