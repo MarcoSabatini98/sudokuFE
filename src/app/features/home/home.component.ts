@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 
 interface GameTile {
-  key: 'sudoku' | 'machiavelli';
+  key: 'sudoku' | 'machiavelli' | 'crossword';
   title: string;
   description: string;
   route: string;
@@ -33,6 +33,12 @@ export class HomeComponent {
       title: 'Macchiavelli',
       description: 'Gioco di carte: tu contro 3 bot.',
       route: '/machiavelli',
+    },
+    {
+      key: 'crossword',
+      title: 'Cruciverba',
+      description: 'Schemi a parole incrociate con definizioni.',
+      route: '/crossword',
       badge: 'In creazione',
     },
   ];

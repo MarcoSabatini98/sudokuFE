@@ -1,0 +1,35 @@
+.cw-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.cw-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.cw-subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.7rem;
+  border-radius: 1rem;
+  background: #ffb300;
+  color: #1a1a1a;
+}
+
+.cw-text {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--clr-text-secondary);
+  line-height: 1.5;
+}
