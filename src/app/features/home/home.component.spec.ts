@@ -4,21 +4,19 @@ import { provideRouter, Router } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { HomeComponent } from './home.component';
-import { DIFFICULTY_LABELS } from '../../shared/models/game.model';
 
-describe('HomeComponent', () => {
-  it('should render all four difficulty cards', async () => {
+describe('HomeComponent (hub)', () => {
+  it('should render the two game cards', async () => {
     await render(HomeComponent, {
       providers: [provideRouter([]), provideAnimationsAsync()],
     });
 
-    expect(screen.getByText(DIFFICULTY_LABELS['easy'])).toBeTruthy();
-    expect(screen.getByText(DIFFICULTY_LABELS['medium'])).toBeTruthy();
-    expect(screen.getByText(DIFFICULTY_LABELS['hard'])).toBeTruthy();
-    expect(screen.getByText(DIFFICULTY_LABELS['extreme'])).toBeTruthy();
+    expect(screen.getByText('Sudoku')).toBeTruthy();
+    expect(screen.getByText('Macchiavelli')).toBeTruthy();
+    expect(screen.getByText('In creazione')).toBeTruthy();
   });
 
-  it('should navigate to /game on card click', async () => {
+  it('should navigate to /sudoku on Sudoku card click', async () => {
     const navigateSpy = vi.fn();
     const { fixture } = await render(HomeComponent, {
       providers: [provideRouter([]), provideAnimationsAsync()],
@@ -27,16 +25,20 @@ describe('HomeComponent', () => {
     const router = fixture.debugElement.injector.get(Router);
     vi.spyOn(router, 'navigate').mockImplementation(navigateSpy);
 
-    await userEvent.click(screen.getByText(DIFFICULTY_LABELS['easy']));
-    expect(navigateSpy).toHaveBeenCalledWith(['/game'], { queryParams: { difficulty: 'easy' } });
+    await userEvent.click(screen.getByText('Sudoku'));
+    expect(navigateSpy).toHaveBeenCalledWith(['/sudoku']);
   });
 
-  it('should show cronologia and record nav links', async () => {
-    await render(HomeComponent, {
+  it('should navigate to /machiavelli on Macchiavelli card click', async () => {
+    const navigateSpy = vi.fn();
+    const { fixture } = await render(HomeComponent, {
       providers: [provideRouter([]), provideAnimationsAsync()],
     });
 
-    expect(screen.getByText('Cronologia')).toBeTruthy();
-    expect(screen.getByText('Record')).toBeTruthy();
+    const router = fixture.debugElement.injector.get(Router);
+    vi.spyOn(router, 'navigate').mockImplementation(navigateSpy);
+
+    await userEvent.click(screen.getByText('Macchiavelli'));
+    expect(navigateSpy).toHaveBeenCalledWith(['/machiavelli']);
   });
 });

@@ -1,0 +1,14 @@
+@if (faceDown()) {
+  <div class="card face-down"><div class="back-pattern"></div></div>
+} @else if (card().isJoker) {
+  <div class="card joker">
+    <span class="joker-star">★</span>
+    <span class="joker-label">JOLLY</span>
+  </div>
+} @else {
+  <div class="card" [class.red]="isRed()">
+    <span class="corner top">{{ rankLabel() }}<br />{{ suitSymbol() }}</span>
+    <span class="pip">{{ suitSymbol() }}</span>
+    <span class="corner bottom">{{ rankLabel() }}<br />{{ suitSymbol() }}</span>
+  </div>
+}

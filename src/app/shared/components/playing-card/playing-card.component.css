@@ -1,0 +1,72 @@
+:host {
+  display: inline-block;
+}
+
+.card {
+  position: relative;
+  width: 3.5rem;
+  height: 5rem;
+  border-radius: 0.4rem;
+  background: #fff;
+  border: 1px solid #cfd4dc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  color: #1a1a1a;
+  user-select: none;
+}
+
+.card.red {
+  color: #d32f2f;
+}
+
+.corner {
+  position: absolute;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 0.85;
+  text-align: center;
+}
+
+.corner.top {
+  top: 0.2rem;
+  left: 0.25rem;
+}
+
+.corner.bottom {
+  bottom: 0.2rem;
+  right: 0.25rem;
+  transform: rotate(180deg);
+}
+
+.pip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+}
+
+.card.face-down {
+  background: repeating-linear-gradient(45deg, #2b4a8b 0, #2b4a8b 6px, #3a5ca8 6px, #3a5ca8 12px);
+  border-color: #21386b;
+}
+
+.card.joker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  background: linear-gradient(135deg, #fff 0%, #ffe9b8 100%);
+  color: #b8860b;
+}
+
+.joker-star {
+  font-size: 1.7rem;
+}
+
+.joker-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
