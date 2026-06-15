@@ -26,9 +26,27 @@ const ACE_HIGH = 14;
 
 export const MAX_JOKERS_PER_MELD = 1;
 
-/** Asso alto se la scala contiene il Re ma non il 2. */
-export function runIsAceHigh(naturalRanks: number[]): boolean {
-  return naturalRanks.includes(1) && naturalRanks.includes(13) && !naturalRanks.includes(2);
+/**
+ * Decide se l'asso di una scala va letto alto (14) o basso (1), provando
+ * entrambe le interpretazioni e tenendo quella che forma una finestra
+ * contigua compatibile coi jolly presenti. Serve perché il "Re" può essere
+ * rappresentato da un jolly: non basta cercare il 13 naturale.
+ */
+export function resolveAceHigh(cards: Card[]): boolean {
+  const naturals = cards.filter((c) => !c.isJoker);
+  const ranks = naturals.map((c) => c.rank as number);
+  if (!ranks.includes(1)) return false;
+
+  const jokerCount = cards.length - naturals.length;
+  const total = cards.length;
+  const low = ranks;
+  const high = ranks.map((r) => (r === 1 ? ACE_HIGH : r));
+  const lowFits = runFits(low, jokerCount, total);
+  const highFits = runFits(high, jokerCount, total);
+
+  if (highFits && !lowFits) return true;
+  if (highFits && lowFits) return ranks.includes(13); // ambiguo: alto se c'è il Re naturale
+  return false;
 }
 
 /** Rango effettivo di una carta in una scala (asso = 14 quando è alto). */
@@ -101,25 +119,41 @@ export function isValidMeld(cards: Card[]): boolean {
   return isValidSet(cards) || isValidRun(cards);
 }
 
+interface RunOrder {
+  jokers: Card[];
+  sorted: Card[];
+  eff: (c: Card) => number;
+}
+
+/**
+ * Prepara una scala per l'ordinamento: naturali ordinati per rango effettivo
+ * (asso alto se serve) e jolly separati. Ritorna null se non è una scala
+ * ordinabile (≤1 naturale, oppure stesso rango → tris/poker).
+ */
+function decodeRunOrder(cards: Card[]): RunOrder | null {
+  const naturals = cards.filter((c) => !c.isJoker);
+  if (naturals.length <= 1) return null;
+  if (naturals.every((c) => c.rank === naturals[0].rank)) return null;
+
+  const aceHigh = resolveAceHigh(cards);
+  const eff = (c: Card) => effectiveRank(c, aceHigh);
+  return {
+    jokers: cards.filter((c) => c.isJoker),
+    sorted: [...naturals].sort((a, b) => eff(a) - eff(b)),
+    eff,
+  };
+}
+
 /**
  * Riordina le carte di una combinazione per la visualizzazione:
  * le scale per rango crescente (asso alto in coda se la scala è verso il K),
  * con i jolly inseriti nei buchi. I tris/poker restano (naturali + jolly).
  */
 export function orderMeldCards(cards: Card[]): Card[] {
-  const naturals = cards.filter((c) => !c.isJoker);
-  const jokers = cards.filter((c) => c.isJoker);
-  if (naturals.length <= 1) return [...naturals, ...jokers];
+  const run = decodeRunOrder(cards);
+  if (!run) return [...cards.filter((c) => !c.isJoker), ...cards.filter((c) => c.isJoker)];
 
-  // Tris/poker: stesso rango → nessun ordinamento utile
-  const sameRank = naturals.every((c) => c.rank === naturals[0].rank);
-  if (sameRank) return [...naturals, ...jokers];
-
-  // Scala: asso alto se c'è il Re ma non il 2
-  const aceHigh = runIsAceHigh(naturals.map((c) => c.rank as number));
-  const eff = (c: Card) => effectiveRank(c, aceHigh);
-
-  const sorted = [...naturals].sort((a, b) => eff(a) - eff(b));
+  const { sorted, jokers, eff } = run;
   const result: Card[] = [];
   let ji = 0;
   for (let i = 0; i < sorted.length; i++) {
@@ -132,7 +166,16 @@ export function orderMeldCards(cards: Card[]): Card[] {
       }
     }
   }
-  while (ji < jokers.length) result.push(jokers[ji++]); // jolly di estensione in coda
+
+  // Jolly di estensione: sopra se c'è spazio fino all'asso alto, altrimenti
+  // sotto. Così K-A + jolly diventa Q-K-A (la Regina), non K-A-"qualcosa".
+  const leftover = jokers.length - ji;
+  if (leftover > 0) {
+    const maxEff = eff(sorted[sorted.length - 1]);
+    const up = Math.min(leftover, ACE_HIGH - maxEff);
+    for (let i = 0; i < leftover - up; i++) result.unshift(jokers[ji++]); // estendono sotto
+    for (let i = 0; i < up; i++) result.push(jokers[ji++]); // estendono sopra
+  }
   return result;
 }
 
@@ -148,7 +191,7 @@ export function splitRunWithCard(cards: Card[], card: Card): [Card[], Card[]] | 
   const naturals = cards.filter((c) => !c.isJoker);
   if (card.suit !== naturals[0].suit) return null;
 
-  const aceHigh = runIsAceHigh(naturals.map((c) => c.rank as number));
+  const aceHigh = resolveAceHigh(cards);
   const ordered = orderMeldCards(cards);
   const anchor = ordered.findIndex((c) => !c.isJoker);
   const start = effectiveRank(ordered[anchor], aceHigh) - anchor;
@@ -171,17 +214,10 @@ export function splitRunWithCard(cards: Card[], card: Card): [Card[], Card[]] | 
  * I tris/poker (stesso rango) non vengono mai spezzati. Ritorna ≥1 segmento.
  */
 export function splitRunAtGaps(cards: Card[]): Card[][] {
-  const naturals = cards.filter((c) => !c.isJoker);
-  const jokers = cards.filter((c) => c.isJoker);
-  if (naturals.length === 0) return [cards];
+  const run = decodeRunOrder(cards);
+  if (!run) return [cards];
 
-  const sameRank = naturals.every((c) => c.rank === naturals[0].rank);
-  if (sameRank) return [cards];
-
-  const aceHigh = runIsAceHigh(naturals.map((c) => c.rank as number));
-  const eff = (c: Card) => effectiveRank(c, aceHigh);
-  const sorted = [...naturals].sort((a, b) => eff(a) - eff(b));
-
+  const { sorted, jokers, eff } = run;
   const jokersLeft = [...jokers];
   const segments: Card[][] = [];
   let cur: Card[] = [sorted[0]];

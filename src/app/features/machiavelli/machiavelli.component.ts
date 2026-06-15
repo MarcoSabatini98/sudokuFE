@@ -3,7 +3,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cd
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { Card, Meld, Suit } from '../../shared/models/card.model';
+import { Card, Meld, Rank, Suit } from '../../shared/models/card.model';
 import { GameState } from '../../shared/models/machiavelli.model';
 import { PlayingCardComponent } from '../../shared/components/playing-card/playing-card.component';
 import {
@@ -12,6 +12,7 @@ import {
   orderMeldCards,
   splitRunWithCard,
   splitRunAtGaps,
+  CommitResult,
   MachiavelliEngineService,
 } from '../../core/services/machiavelli/machiavelli-engine.service';
 import { MachiavelliAiService } from '../../core/services/machiavelli/machiavelli-ai.service';
@@ -21,8 +22,18 @@ import {
   BOT_DIFFICULTIES,
   BOT_DIFFICULTY_LABELS,
   BOT_THINK_DELAY_MS,
+  BOT_REVEAL_PAUSE_MS,
   HAND_SORT_SUIT_ORDER,
+  PLAYER_COUNT,
+  RANK_LABEL,
+  SUIT_SYMBOL,
 } from '../../core/constants/machiavelli.constants';
+
+export interface LogEntry {
+  id: number;
+  who: 'human' | 'bot' | 'system';
+  text: string;
+}
 
 const NEW_MELD_ID = 'new-meld';
 const HAND_ID = 'hand';
@@ -58,6 +69,8 @@ export class MachiavelliComponent {
   readonly HAND_ID = HAND_ID;
   /** Array tipizzato per la dropzone "nuova combinazione" (resta sempre vuoto). */
   readonly emptyZone: Card[] = [];
+  /** Carta fittizia per disegnare il dorso del mazzo (mai rivelata). */
+  readonly cardBack: Card = { id: 'deck-back', suit: null, rank: null, isJoker: false, deckId: 0 };
 
   readonly state = signal<GameState>(this.engine.newGame());
   readonly workingTable = signal<Meld[]>([]);
@@ -76,6 +89,8 @@ export class MachiavelliComponent {
   private resultSaved = false;
   /** Carte che l'umano aveva in mano a inizio turno: solo queste possono tornare in mano. */
   private startHandIds = new Set<string>();
+  /** Ordine preferito della mano (id carte) impostato con "Ordina mano"; null = ordine di distribuzione. */
+  private handOrder: string[] | null = null;
 
   /** Id della scala "presa" col doppio click, in attesa di essere unita a un'altra. */
   readonly carriedMeldId = signal<string | null>(null);
@@ -83,9 +98,28 @@ export class MachiavelliComponent {
   private readonly moveHistory = signal<{ table: Meld[]; hand: Card[] }[]>([]);
   readonly canUndoMove = computed(() => this.moveHistory().length > 0);
 
+  /** Registro mosse (più recenti in alto), per seguire le scelte dei bot. */
+  readonly gameLog = signal<LogEntry[]>([]);
+  private logSeq = 0;
+
+  /** false finché non si preme "Nuova partita": il gioco non parte da solo. */
+  readonly started = signal(false);
+  /** true quando l'utente chiude il popup di vittoria senza rigiocare. */
+  readonly winDismissed = signal(false);
+  /** true quando l'utente chiude il popup iniziale per navigare altrove. */
+  readonly idleDismissed = signal(false);
+
   readonly opponents = computed(() => this.state().players.filter((p) => p.isAI));
+  /** Carte di dorso da impilare per dare l'idea del mazzo (max 3). */
+  readonly stockPreview = computed(() =>
+    Array.from({ length: Math.min(this.state().stock.length, 3) }, (_, i) => i)
+  );
   readonly isHumanTurn = computed(
-    () => this.state().currentPlayer === 0 && this.state().phase === 'playing' && !this.thinking()
+    () =>
+      this.started() &&
+      this.state().currentPlayer === 0 &&
+      this.state().phase === 'playing' &&
+      !this.thinking()
   );
   readonly isWon = computed(() => this.state().phase === 'won');
   readonly winnerName = computed(() => {
@@ -94,17 +128,79 @@ export class MachiavelliComponent {
   });
 
   constructor() {
-    this.startHumanTurn();
+    // Stato a riposo: carte distribuite e visibili, ma la partita parte solo
+    // quando l'utente preme "Nuova partita".
+    this.state.set(this.engine.newGame());
+    this.syncWorkingView();
+  }
+
+  /**
+   * Avvia una partita: log pulito, il primo a giocare è sempre un bot scelto a
+   * caso (così l'umano non parte mai per primo); il giro prosegue a rotazione
+   * e l'umano gioca quando tocca a lui.
+   */
+  private initGame(): void {
+    const state = this.engine.newGame();
+    state.currentPlayer = 1 + Math.floor(Math.random() * (PLAYER_COUNT - 1));
+    this.state.set(state);
+    this.thinking.set(false);
+    this.started.set(true);
+    this.winDismissed.set(false);
+    this.startTime = Date.now();
+    this.resultSaved = false;
+    this.bestTimeSeconds.set(null);
+    this.handOrder = null;
+    this.gameLog.set([]);
+    this.pushLog('system', `Nuova partita · inizia ${state.players[state.currentPlayer].name}`);
+    this.syncWorkingView();
+    if (state.currentPlayer === 0) this.startHumanTurn();
+    else void this.runAiTurns();
+  }
+
+  /** Aggiunge una riga al log (più recente in cima). */
+  private pushLog(who: LogEntry['who'], text: string): void {
+    this.gameLog.update((l) => [{ id: ++this.logSeq, who, text }, ...l]);
+  }
+
+  /** Etichetta breve di una carta per il log: es. "K♠", "7♥", "Jolly". */
+  private cardLabel(c: Card): string {
+    if (c.isJoker) return 'Jolly';
+    return `${RANK_LABEL[c.rank as Rank]}${SUIT_SYMBOL[c.suit as Suit]}`;
+  }
+
+  /** Carte uscite dalla mano (calate) confrontando prima/dopo per id. */
+  private placedCards(before: Card[], after: Card[]): Card[] {
+    return before.filter((c) => !after.some((a) => a.id === c.id));
+  }
+
+  /** Riflette lo stato corrente (tavolo + mano umana) nelle aree visibili. */
+  private syncWorkingView(): void {
+    this.workingTable.set(this.state().table.map((m) => ({ id: m.id, cards: [...m.cards] })));
+    this.workingHand.set(this.applyOrder(this.state().players[0].hand));
   }
 
   /** Copia tavolo e mano nelle aree di lavoro per il turno dell'umano. */
   private startHumanTurn(): void {
     this.workingTable.set(this.state().table.map((m) => ({ id: m.id, cards: [...m.cards] })));
-    const hand = [...this.state().players[0].hand];
+    const hand = this.applyOrder(this.state().players[0].hand);
     this.workingHand.set(hand);
     this.startHandIds = new Set(hand.map((c) => c.id));
     this.carriedMeldId.set(null);
     this.moveHistory.set([]);
+  }
+
+  /**
+   * Riordina le carte secondo l'ordine preferito dell'utente (handOrder).
+   * Le carte non presenti (es. appena pescate) restano in coda nell'ordine dato.
+   */
+  private applyOrder(cards: Card[]): Card[] {
+    const order = this.handOrder;
+    if (!order) return [...cards];
+    const rank = (id: string) => {
+      const i = order.indexOf(id);
+      return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+    };
+    return [...cards].sort((a, b) => rank(a.id) - rank(b.id));
   }
 
   /** Salva lo stato corrente prima di una mossa, così da poterla annullare. */
@@ -256,6 +352,8 @@ export class MachiavelliComponent {
     this.workingTable.set(
       table.filter((m) => m.cards.length > 0).map((m) => ({ id: m.id, cards: orderMeldCards(m.cards) }))
     );
+
+    this.tryAutoWin(); // ultima carta calata + tavolo valido = vittoria immediata
   }
 
   // -- Azioni turno ----------------------------------------------------------
@@ -266,7 +364,7 @@ export class MachiavelliComponent {
       this.snack.open(res.error ?? 'Mossa non valida.', 'OK', { duration: 3000 });
       return;
     }
-    this.state.set(res.state);
+    this.applyHumanCommit(res);
     if (res.state.phase === 'won') {
       this.finishGame();
       return;
@@ -274,9 +372,32 @@ export class MachiavelliComponent {
     void this.runAiTurns();
   }
 
+  /** Applica al gioco un commit umano valido e ne logga le carte calate. */
+  private applyHumanCommit(res: CommitResult): void {
+    const placed = this.placedCards(this.state().players[0].hand, res.state!.players[0].hand);
+    this.state.set(res.state!);
+    this.pushLog('human', `Tu cali: ${placed.map((c) => this.cardLabel(c)).join(' ')}`);
+  }
+
+  /**
+   * Se calando l'ultima carta la mano si svuota e il tavolo è valido, è una
+   * vittoria immediata: chiude la partita senza dover premere "Conferma turno".
+   */
+  private tryAutoWin(): void {
+    if (this.workingHand().length !== 0) return;
+    const res = this.engine.commitHumanTurn(this.state(), this.workingTable(), this.workingHand());
+    if (res.ok && res.state && res.state.phase === 'won') {
+      this.applyHumanCommit(res);
+      this.finishGame();
+    }
+  }
+
   draw(): void {
+    // L'ordine preferito (handOrder) viene riapplicato da startHumanTurn: la
+    // carta pescata finisce in coda, il resto resta ordinato.
     const next = this.engine.drawFromStock(this.state(), 0);
     this.state.set(next);
+    this.pushLog('human', 'Tu peschi');
     void this.runAiTurns();
   }
 
@@ -290,6 +411,7 @@ export class MachiavelliComponent {
     const cards = [...this.workingHand()];
     cards.sort(mode === 'suit' ? this.bySuitThenRank : this.byRank);
     this.workingHand.set(cards);
+    this.handOrder = cards.map((c) => c.id); // ricordato per pesca / annulla turno / giri successivi
     this.handSortMode.set(mode === 'suit' ? 'rank' : 'suit');
   }
 
@@ -312,31 +434,51 @@ export class MachiavelliComponent {
   }
 
   newGame(): void {
-    this.state.set(this.engine.newGame());
-    this.thinking.set(false);
-    this.startTime = Date.now();
-    this.resultSaved = false;
-    this.bestTimeSeconds.set(null);
-    this.startHumanTurn();
+    this.initGame();
   }
 
-  /** Fa giocare in sequenza i bot fino a tornare all'umano o a fine partita. */
+  /**
+   * Fa giocare i bot uno alla volta: ognuno "pensa", cala o pesca, e solo dopo
+   * tocca al successivo. La mossa di ciascun bot compare subito sul tavolo,
+   * con una breve pausa per poterla leggere prima del bot dopo.
+   */
   private async runAiTurns(): Promise<void> {
     this.thinking.set(true);
     while (this.state().currentPlayer !== 0 && this.state().phase === 'playing') {
-      await this.delay(BOT_THINK_DELAY_MS[this.difficulty()]);
       const idx = this.state().currentPlayer;
+      const handBefore = this.state().players[idx].hand;
+      const stockBefore = this.state().stock.length;
+      await this.delay(BOT_THINK_DELAY_MS[this.difficulty()]);
       this.state.set(this.ai.takeTurn(this.state(), idx, this.difficulty()));
+      this.syncWorkingView(); // mostra subito la giocata del bot
+      this.logBotMove(idx, handBefore, stockBefore);
+      await this.delay(BOT_REVEAL_PAUSE_MS); // pausa per leggerla
     }
     this.thinking.set(false);
     if (this.state().phase === 'playing') this.startHumanTurn();
     else this.finishGame();
   }
 
+  /** Scrive nel log cosa ha fatto il bot: carte calate, pescata o passo. */
+  private logBotMove(idx: number, handBefore: Card[], stockBefore: number): void {
+    const player = this.state().players[idx];
+    const placed = this.placedCards(handBefore, player.hand);
+    if (placed.length > 0) {
+      this.pushLog('bot', `${player.name} cala: ${placed.map((c) => this.cardLabel(c)).join(' ')}`);
+    } else if (this.state().stock.length < stockBefore) {
+      this.pushLog('bot', `${player.name} pesca`);
+    } else {
+      this.pushLog('bot', `${player.name} passa`);
+    }
+  }
+
   /** Salva l'esito a fine partita (best-effort: se il BE è offline non blocca il gioco). */
   private finishGame(): void {
     if (this.resultSaved) return;
     this.resultSaved = true;
+
+    const w = this.state().winner;
+    if (w !== null) this.pushLog('system', `🏆 ${this.state().players[w].name} ha vinto`);
 
     const duration = Math.max(1, Math.round((Date.now() - this.startTime) / 1000));
     const won = this.state().winner === 0;

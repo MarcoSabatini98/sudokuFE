@@ -2,15 +2,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { MachiavelliAiService } from './machiavelli-ai.service';
 import { isTableValid } from './machiavelli-engine.service';
-import { Card, Rank, Suit } from '../../../shared/models/card.model';
+import { Card } from '../../../shared/models/card.model';
 import { GameState } from '../../../shared/models/machiavelli.model';
-
-function card(suit: Suit, rank: Rank, deckId = 0): Card {
-  return { id: `${suit}${rank}-${deckId}`, suit, rank, isJoker: false, deckId };
-}
-function joker(n = 0): Card {
-  return { id: `JOKER-0-${n}`, suit: null, rank: null, isJoker: true, deckId: 0 };
-}
+import { card, joker, aceToSixHearts } from '../../../shared/testing/card-fixtures';
 
 function stateWith(botHand: Card[], table: GameState['table'] = [], stock: Card[] = []): GameState {
   return {
@@ -42,6 +36,29 @@ describe('MachiavelliAiService', () => {
     expect(plan).not.toBeNull();
     expect(plan!.table).toHaveLength(1);
     expect(plan!.hand).toHaveLength(1); // resta il 2 di fiori
+  });
+
+  it('forma una scala alta Q-K-A dalla mano', () => {
+    const s = stateWith([card('H', 12), card('H', 13), card('H', 1), card('C', 2)]);
+    const plan = ai.planTurn(s, 1);
+    expect(plan).not.toBeNull();
+    expect(plan!.hand.map((c) => c.id)).toEqual(['C2-0']); // calate Q-K-A, resta il 2 di fiori
+  });
+
+  it('usa un jolly per colmare il buco di una scala (5-6-_-8)', () => {
+    const s = stateWith([card('H', 5), card('H', 6), card('H', 8), joker(), card('C', 2)]);
+    const plan = ai.planTurn(s, 1);
+    expect(plan).not.toBeNull();
+    expect(plan!.hand.some((c) => c.isJoker)).toBe(false); // jolly usato nella scala
+    expect(plan!.table.some((m) => m.cards.length >= 4)).toBe(true);
+  });
+
+  it('forma la scala più lunga disponibile (4-5-6-7, non si ferma a 3)', () => {
+    const s = stateWith([card('H', 4), card('H', 5), card('H', 6), card('H', 7)]);
+    const plan = ai.planTurn(s, 1);
+    expect(plan).not.toBeNull();
+    expect(plan!.hand).toHaveLength(0);
+    expect(plan!.table[0].cards).toHaveLength(4);
   });
 
   it('estende una combinazione esistente sul tavolo', () => {
@@ -95,14 +112,7 @@ describe('MachiavelliAiService', () => {
   });
 
   it('Difficile spezza una scala per calare una carta duplicata', () => {
-    const run = [
-      card('H', 1),
-      card('H', 2),
-      card('H', 3),
-      card('H', 4),
-      card('H', 5),
-      card('H', 6),
-    ];
+    const run = aceToSixHearts();
     const s = stateWith([card('H', 4, 1)], [{ id: 't1', cards: run }]);
 
     expect(ai.planTurn(s, 1, 'easy')).toBeNull(); // Facile non sa spezzare
