@@ -19,15 +19,18 @@ try {
     exit
 } catch {}
 
-# Start backend
-Start-Process "cmd.exe" -ArgumentList "/k", "title Sudoku-BE && cd /d `"$BE_PATH`" && node server.js" -WindowStyle Minimized
+# Backend: passa a develop, aggiorna, applica eventuali nuove migrations, poi avvia.
+# (sequelize-cli db:migrate applica solo le migrations ancora non eseguite)
+$beCmd = 'title Sudoku-BE && cd /d "' + $BE_PATH + '" && git checkout develop && git pull --ff-only && npx sequelize-cli db:migrate && npm run dev'
+Start-Process "cmd.exe" -ArgumentList "/k", $beCmd -WindowStyle Minimized
 
-# Start frontend
-Start-Process "cmd.exe" -ArgumentList "/k", "title Sudoku-FE && cd /d `"$FE_PATH`" && npx ng serve --open=false" -WindowStyle Minimized
+# Frontend: passa a develop, aggiorna, poi avvia
+$feCmd = 'title Sudoku-FE && cd /d "' + $FE_PATH + '" && git checkout develop && git pull --ff-only && npx ng serve --open=false'
+Start-Process "cmd.exe" -ArgumentList "/k", $feCmd -WindowStyle Minimized
 
-# Poll until Angular is ready (max 90s)
-Write-Host "Avvio Sudoku..." -ForegroundColor Blue
-$timeout = 90
+# Poll until Angular is ready (max 120s: include update + migrate + avvio)
+Write-Host "Avvio Sudoku (aggiornamento develop + migrations + server)..." -ForegroundColor Blue
+$timeout = 120
 $elapsed = 0
 $ready   = $false
 
