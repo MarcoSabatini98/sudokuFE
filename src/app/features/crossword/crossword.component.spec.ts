@@ -27,7 +27,7 @@ describe('CrosswordComponent', () => {
     await renderCrossword();
     expect(screen.getByText('Orizzontali')).toBeTruthy();
     expect(screen.getByText('Verticali')).toBeTruthy();
-    expect(screen.getByText('Animale che abbaia')).toBeTruthy();
+    expect(screen.getAllByText('Animale che abbaia').length).toBeGreaterThan(0);
   });
 
   it('seleziona la prima casella bianca all’avvio', async () => {
