@@ -19,17 +19,42 @@ try {
     exit
 } catch {}
 
-# Backend: passa a develop, aggiorna, applica eventuali nuove migrations, poi avvia.
-# (sequelize-cli db:migrate applica solo le migrations ancora non eseguite)
-$beCmd = 'title Sudoku-BE && cd /d "' + $BE_PATH + '" && git checkout develop && git pull --ff-only && npx sequelize-cli db:migrate && npm run dev'
+# --- Backend: pull + npm install se package.json cambiato ---
+Write-Host "Aggiornamento BE..." -ForegroundColor Blue
+Push-Location $BE_PATH
+git checkout develop 2>$null | Out-Null
+$bePkgBefore = git hash-object package.json 2>$null
+git pull --ff-only
+$bePkgAfter = git hash-object package.json 2>$null
+if (-not (Test-Path "node_modules") -or $bePkgBefore -ne $bePkgAfter) {
+    Write-Host "  Dipendenze BE aggiornate, npm install..." -ForegroundColor Yellow
+    npm install
+}
+Pop-Location
+
+# --- Frontend: pull + npm install se package.json cambiato ---
+Write-Host "Aggiornamento FE..." -ForegroundColor Blue
+Push-Location $FE_PATH
+git checkout develop 2>$null | Out-Null
+$fePkgBefore = git hash-object package.json 2>$null
+git pull --ff-only
+$fePkgAfter = git hash-object package.json 2>$null
+if (-not (Test-Path "node_modules") -or $fePkgBefore -ne $fePkgAfter) {
+    Write-Host "  Dipendenze FE aggiornate, npm install..." -ForegroundColor Yellow
+    npm install
+}
+Pop-Location
+
+# Backend: applica migrations e avvia (pull gia' fatto sopra)
+$beCmd = 'title Sudoku-BE && cd /d "' + $BE_PATH + '" && npx sequelize-cli db:migrate && npm run dev'
 Start-Process "cmd.exe" -ArgumentList "/k", $beCmd -WindowStyle Minimized
 
-# Frontend: passa a develop, aggiorna, poi avvia
-$feCmd = 'title Sudoku-FE && cd /d "' + $FE_PATH + '" && git checkout develop && git pull --ff-only && npx ng serve --open=false'
+# Frontend: avvia direttamente (pull + install gia' fatto sopra)
+$feCmd = 'title Sudoku-FE && cd /d "' + $FE_PATH + '" && npx ng serve --open=false'
 Start-Process "cmd.exe" -ArgumentList "/k", $feCmd -WindowStyle Minimized
 
-# Poll until Angular is ready (max 120s: include update + migrate + avvio)
-Write-Host "Avvio Sudoku (aggiornamento develop + migrations + server)..." -ForegroundColor Blue
+# Poll until Angular is ready (max 120s)
+Write-Host "Avvio server..." -ForegroundColor Blue
 $timeout = 120
 $elapsed = 0
 $ready   = $false
