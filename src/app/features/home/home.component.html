@@ -1,17 +1,16 @@
-<div class="home-container">
-  <h1 class="title">Sudoku</h1>
-  <p class="subtitle">Scegli la difficoltà per iniziare</p>
+<div class="hub-container">
+  <h1 class="title">Giochi</h1>
+  <p class="subtitle">Scegli cosa giocare</p>
 
-  <div class="nav-links">
-    <a mat-button routerLink="/history">Cronologia</a>
-    <a mat-button routerLink="/records">Record</a>
-  </div>
-
-  <div class="difficulty-list">
-    @for (diff of difficulties; track diff) {
-      <mat-card class="difficulty-card" (click)="startGame(diff)">
+  <div class="game-list">
+    @for (game of games; track game.key) {
+      <mat-card class="game-card" (click)="open(game)">
         <mat-card-content class="card-content">
-          <div class="diff-label">{{ labels[diff] }}</div>
+          <div class="game-title">{{ game.title }}</div>
+          <div class="game-desc">{{ game.description }}</div>
+          @if (game.badge) {
+            <span class="badge">{{ game.badge }}</span>
+          }
         </mat-card-content>
       </mat-card>
     }

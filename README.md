@@ -8,7 +8,22 @@
 
 ### Descrizione
 
-Gioco del Sudoku single-player sviluppato con **Angular 21**. Quattro livelli di difficoltà, timer, note automatiche, modalità timbro, cronologia partite e record personali. Tema chiaro/scuro con persistenza.
+Raccolta di giochi sviluppata con **Angular 21**. Dalla home si scelgono due giochi:
+
+- **Sudoku** single-player: quattro livelli di difficoltà, timer, note automatiche, modalità timbro, cronologia partite e record personali.
+- **Macchiavelli** (gioco di carte): 1 umano contro 3 bot, con drag & drop delle carte. Motore di gioco e AI interamente lato frontend; il backend salva solo l'esito delle partite e il miglior tempo di vittoria.
+
+Tema chiaro/scuro con persistenza.
+
+### Macchiavelli — come si gioca
+
+Dalla home apri la card **Macchiavelli**. Hai 13 carte; trascina combinazioni valide sul tavolo:
+
+- **Scala**: 3+ carte stesso seme, ranghi consecutivi (asso alto o basso).
+- **Tris/Poker**: 3+ carte stesso valore, semi diversi.
+- **Jolly**: sostituisce qualsiasi carta mancante.
+
+Puoi riorganizzare liberamente il tavolo, ma a fine turno ogni combinazione deve avere almeno 3 carte e devi aver calato almeno una carta dalla tua mano (altrimenti **Pesca**). Svuota la mano per vincere. Le carte sono disegnate via CSS: nessun asset esterno, funziona offline.
 
 ---
 

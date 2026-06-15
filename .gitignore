@@ -44,3 +44,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Windows desktop shortcut icon (generated locally by create-shortcut.ps1)
+sudoku.ico
