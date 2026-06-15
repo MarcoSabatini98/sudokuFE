@@ -17,6 +17,11 @@ export const routes: Routes = [
       import('./features/machiavelli/machiavelli.component').then((m) => m.MachiavelliComponent),
   },
   {
+    path: 'crossword',
+    loadComponent: () =>
+      import('./features/crossword/crossword.component').then((m) => m.CrosswordComponent),
+  },
+  {
     path: 'game',
     loadComponent: () =>
       import('./features/game/game.component').then((m) => m.GameComponent),
