@@ -4,43 +4,75 @@
     <a mat-button routerLink="/">← Giochi</a>
   </header>
 
+  <div class="cw-difficulty">
+    <span class="cw-diff-label">Difficoltà:</span>
+    @for (level of difficulties; track level) {
+      <button
+        mat-stroked-button
+        class="cw-diff-btn"
+        [class.active]="difficulty() === level"
+        (click)="setDifficulty(level)"
+      >
+        {{ difficultyLabels[level] }}
+      </button>
+    }
+  </div>
+
   @if (loading()) {
     <p class="cw-loading">Generazione schema…</p>
   } @else if (crossword(); as cw) {
-    <div class="cw-layout">
-      <!-- Griglia -->
-      <div
-        class="cw-grid"
-        #grid
-        tabindex="0"
-        [style.grid-template-columns]="'repeat(' + cw.cols + ', var(--cw-cell))'"
-        (keydown)="onKeydown($event)"
-      >
-        @for (row of cw.cells; track $index; let r = $index) {
-          @for (cell of row; track $index; let c = $index) {
-            @if (cell) {
-              <div
-                class="cw-cell"
-                tabindex="0"
-                [class.selected]="isSelected(r, c)"
-                [class.highlight]="isHighlighted(r, c)"
-                [class.wrong]="isWrong(r, c)"
-                (click)="onCellClick(r, c); grid.focus()"
-                (keyup.enter)="onCellClick(r, c)"
-              >
-                @if (cellNumber(r, c); as n) {
-                  <span class="cw-num">{{ n }}</span>
-                }
-                <span class="cw-letter">{{ letterAt(r, c) }}</span>
-              </div>
-            } @else {
-              <div class="cw-cell black"></div>
+    <div class="cw-body">
+      <!-- Colonna sinistra: clue attiva + griglia + controlli -->
+      <div class="cw-main">
+        <div class="cw-active-clue">
+          @if (activeEntry(); as e) {
+            <span class="cw-active-tag">{{ e.number }} {{ e.direction === 'across' ? 'Orizz.' : 'Vert.' }}</span>
+            <span class="cw-active-text">{{ e.clue }}</span>
+          } @else {
+            <span class="cw-active-hint">Seleziona una casella per leggere la definizione</span>
+          }
+        </div>
+
+        <div
+          class="cw-grid"
+          #grid
+          tabindex="0"
+          [style.grid-template-columns]="'repeat(' + cw.cols + ', var(--cw-cell))'"
+          (keydown)="onKeydown($event)"
+        >
+          @for (row of cw.cells; track $index; let r = $index) {
+            @for (cell of row; track $index; let c = $index) {
+              @if (cell) {
+                <div
+                  class="cw-cell"
+                  tabindex="0"
+                  [class.selected]="isSelected(r, c)"
+                  [class.highlight]="isHighlighted(r, c)"
+                  [class.wrong]="isWrong(r, c)"
+                  (click)="onCellClick(r, c); grid.focus()"
+                  (keyup.enter)="onCellClick(r, c)"
+                >
+                  @if (cellNumber(r, c); as n) {
+                    <span class="cw-num">{{ n }}</span>
+                  }
+                  <span class="cw-letter">{{ letterAt(r, c) }}</span>
+                </div>
+              } @else {
+                <div class="cw-cell black"></div>
+              }
             }
           }
-        }
+        </div>
+
+        <div class="cw-controls">
+          <button mat-flat-button color="primary" (click)="check()">Verifica</button>
+          <button mat-stroked-button (click)="reveal()">Soluzione</button>
+          <button mat-stroked-button (click)="clear()">Cancella</button>
+          <button mat-button (click)="newPuzzle()">Nuovo schema</button>
+        </div>
       </div>
 
-      <!-- Definizioni -->
+      <!-- Colonna destra: definizioni -->
       <div class="cw-clues">
         <section>
           <h2>Orizzontali</h2>
@@ -73,14 +105,6 @@
           </ul>
         </section>
       </div>
-    </div>
-
-    <!-- Controlli -->
-    <div class="cw-controls">
-      <button mat-flat-button color="primary" (click)="check()">Verifica</button>
-      <button mat-stroked-button (click)="reveal()">Soluzione</button>
-      <button mat-stroked-button (click)="clear()">Cancella</button>
-      <button mat-button (click)="newPuzzle()">Nuovo schema</button>
     </div>
 
     @if (solved()) {

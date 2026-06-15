@@ -27,7 +27,7 @@ describe('CrosswordComponent', () => {
     await renderCrossword();
     expect(screen.getByText('Orizzontali')).toBeTruthy();
     expect(screen.getByText('Verticali')).toBeTruthy();
-    expect(screen.getByText('Animale che abbaia')).toBeTruthy();
+    expect(screen.getAllByText('Animale che abbaia').length).toBeGreaterThan(0);
   });
 
   it('seleziona la prima casella bianca all’avvio', async () => {
@@ -95,5 +95,23 @@ describe('CrosswordComponent', () => {
     expect(comp.solved()).toBe(false);
     comp.reveal();
     expect(comp.solved()).toBe(true);
+  });
+
+  it('cambiare difficoltà la imposta e rigenera lo schema', async () => {
+    const generateSpy = vi.fn(() => of(mockCrossword()));
+    const { fixture } = await render(CrosswordComponent, {
+      providers: [
+        provideRouter([]),
+        provideNoopAnimations(),
+        { provide: CrosswordService, useValue: { generate: generateSpy } },
+      ],
+    });
+    const comp = fixture.componentInstance;
+    generateSpy.mockClear(); // ignora la generazione iniziale
+
+    comp.setDifficulty('hard');
+
+    expect(comp.difficulty()).toBe('hard');
+    expect(generateSpy).toHaveBeenCalledWith('hard');
   });
 });

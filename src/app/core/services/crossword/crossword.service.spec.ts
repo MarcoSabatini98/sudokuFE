@@ -9,16 +9,18 @@ describe('CrosswordService', () => {
     expect(service()).toBeTruthy();
   });
 
-  it('should call the generate endpoint and unwrap data', () => {
+  it('should call the generate endpoint with the difficulty and unwrap data', () => {
     const mockCw = mockCrossword();
 
     service()
-      .generate()
+      .generate('hard')
       .subscribe((result) => {
         expect(result).toEqual(mockCw);
       });
 
-    const req = mock().expectOne((r) => r.url.includes('/crossword/generate'));
+    const req = mock().expectOne(
+      (r) => r.url.includes('/crossword/generate') && r.params.get('difficulty') === 'hard'
+    );
     expect(req.request.method).toBe('GET');
     req.flush({ status: 'success', success: true, data: mockCw });
   });
