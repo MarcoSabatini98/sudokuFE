@@ -96,4 +96,22 @@ describe('CrosswordComponent', () => {
     comp.reveal();
     expect(comp.solved()).toBe(true);
   });
+
+  it('cambiare difficoltà la imposta e rigenera lo schema', async () => {
+    const generateSpy = vi.fn(() => of(mockCrossword()));
+    const { fixture } = await render(CrosswordComponent, {
+      providers: [
+        provideRouter([]),
+        provideNoopAnimations(),
+        { provide: CrosswordService, useValue: { generate: generateSpy } },
+      ],
+    });
+    const comp = fixture.componentInstance;
+    generateSpy.mockClear(); // ignora la generazione iniziale
+
+    comp.setDifficulty('hard');
+
+    expect(comp.difficulty()).toBe('hard');
+    expect(generateSpy).toHaveBeenCalledWith('hard');
+  });
 });

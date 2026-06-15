@@ -4,6 +4,20 @@
     <a mat-button routerLink="/">← Giochi</a>
   </header>
 
+  <div class="cw-difficulty">
+    <span class="cw-diff-label">Difficoltà:</span>
+    @for (level of difficulties; track level) {
+      <button
+        mat-stroked-button
+        class="cw-diff-btn"
+        [class.active]="difficulty() === level"
+        (click)="setDifficulty(level)"
+      >
+        {{ difficultyLabels[level] }}
+      </button>
+    }
+  </div>
+
   @if (loading()) {
     <p class="cw-loading">Generazione schema…</p>
   } @else if (crossword(); as cw) {

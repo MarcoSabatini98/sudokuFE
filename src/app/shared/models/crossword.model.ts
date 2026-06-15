@@ -1,5 +1,15 @@
 export type CrosswordDirection = 'across' | 'down';
 
+export type CrosswordDifficulty = 'easy' | 'medium' | 'hard';
+
+export const CROSSWORD_DIFFICULTIES: CrosswordDifficulty[] = ['easy', 'medium', 'hard'];
+
+export const CROSSWORD_DIFFICULTY_LABELS: Record<CrosswordDifficulty, string> = {
+  easy: 'Facile',
+  medium: 'Medio',
+  hard: 'Difficile',
+};
+
 export interface CrosswordCell {
   /** Lettera soluzione della cella (A-Z). */
   solution: string;

@@ -5,8 +5,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { CrosswordService } from '../../core/services/crossword/crossword.service';
 import {
   Crossword,
+  CrosswordDifficulty,
   CrosswordDirection,
   CrosswordEntry,
+  CROSSWORD_DIFFICULTIES,
+  CROSSWORD_DIFFICULTY_LABELS,
 } from '../../shared/models/crossword.model';
 
 interface CellPos {
@@ -28,6 +31,10 @@ const ACCENTS: Record<string, string> = {
 })
 export class CrosswordComponent {
   private readonly api = inject(CrosswordService);
+
+  readonly difficulties = CROSSWORD_DIFFICULTIES;
+  readonly difficultyLabels = CROSSWORD_DIFFICULTY_LABELS;
+  readonly difficulty = signal<CrosswordDifficulty>('medium');
 
   readonly crossword = signal<Crossword | null>(null);
   readonly loading = signal(false);
@@ -62,10 +69,16 @@ export class CrosswordComponent {
 
   newPuzzle(): void {
     this.loading.set(true);
-    this.api.generate().subscribe({
+    this.api.generate(this.difficulty()).subscribe({
       next: (cw) => this.loadCrossword(cw),
       error: () => this.loading.set(false),
     });
+  }
+
+  setDifficulty(level: CrosswordDifficulty): void {
+    if (level === this.difficulty()) return;
+    this.difficulty.set(level);
+    this.newPuzzle();
   }
 
   private loadCrossword(cw: Crossword): void {

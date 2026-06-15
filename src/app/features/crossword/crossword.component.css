@@ -20,6 +20,23 @@
   font-weight: 800;
 }
 
+.cw-difficulty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cw-diff-label {
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.cw-diff-btn.active {
+  background: var(--clr-selected, #3b82f6);
+  color: #fff;
+}
+
 .cw-loading {
   color: var(--clr-text-secondary);
 }
