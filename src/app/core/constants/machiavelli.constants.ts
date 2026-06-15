@@ -24,6 +24,9 @@ export const BOT_THINK_DELAY_MS: Record<BotDifficulty, number> = {
   hard: 1600,
 };
 
+/** Pausa dopo la giocata di un bot (ms): lascia leggere la mossa prima del bot successivo. */
+export const BOT_REVEAL_PAUSE_MS = 650;
+
 /** Ordine semi per "Ordina mano" per seme: rosso/nero alternati per leggibilità. */
 export const HAND_SORT_SUIT_ORDER: Suit[] = ['H', 'S', 'D', 'C'];
 

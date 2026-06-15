@@ -8,15 +8,9 @@ import {
   splitRunWithCard,
   splitRunAtGaps,
 } from './machiavelli-engine.service';
-import { Card, Rank, Suit } from '../../../shared/models/card.model';
+import { Card } from '../../../shared/models/card.model';
 import { GameState } from '../../../shared/models/machiavelli.model';
-
-function card(suit: Suit, rank: Rank, deckId = 0): Card {
-  return { id: `${suit}${rank}-${deckId}`, suit, rank, isJoker: false, deckId };
-}
-function joker(n = 0): Card {
-  return { id: `JOKER-0-${n}`, suit: null, rank: null, isJoker: true, deckId: 0 };
-}
+import { card, joker, aceToSixHearts } from '../../../shared/testing/card-fixtures';
 
 describe('MachiavelliEngine — validazione set', () => {
   it('accetta tris di semi distinti', () => {
@@ -95,6 +89,21 @@ describe('MachiavelliEngine — orderMeldCards', () => {
     const out = orderMeldCards([card('H', 3), card('H', 1), card('H', 2)]);
     expect(out.map((c) => c.rank)).toEqual([1, 2, 3]);
   });
+  it('usa il jolly come Re tra Q e A in una scala alta (9-10-J-Q-jolly-A)', () => {
+    const out = orderMeldCards([
+      card('C', 1),
+      card('C', 9),
+      card('C', 10),
+      card('C', 11),
+      card('C', 12),
+      joker(),
+    ]);
+    expect(out.map((c) => (c.isJoker ? 'J' : c.rank))).toEqual([9, 10, 11, 12, 'J', 1]);
+  });
+  it('mette il jolly come Regina davanti a K-A (jolly-K-A, non K-A-jolly)', () => {
+    const out = orderMeldCards([card('S', 13), card('S', 1), joker()]);
+    expect(out.map((c) => (c.isJoker ? 'J' : c.rank))).toEqual(['J', 13, 1]);
+  });
 });
 
 describe('MachiavelliEngine — isValidMeld / isTableValid', () => {
@@ -112,14 +121,7 @@ describe('MachiavelliEngine — isValidMeld / isTableValid', () => {
 });
 
 describe('MachiavelliEngine — splitRunWithCard', () => {
-  const run = [
-    card('H', 1),
-    card('H', 2),
-    card('H', 3),
-    card('H', 4),
-    card('H', 5),
-    card('H', 6),
-  ];
+  const run = aceToSixHearts();
 
   it('spezza A-2-3-4-5-6 aggiungendo un 4 → [A-2-3-4] e [4-5-6]', () => {
     const split = splitRunWithCard(run, card('H', 4, 1));

@@ -1,4 +1,25 @@
-<div class="mac-container">
+<div class="mac-layout">
+  <!-- Log mosse -->
+  <aside class="game-log">
+    <h3 class="log-title">Log partita</h3>
+    @if (gameLog().length === 0) {
+      <p class="log-empty">Le mosse appariranno qui.</p>
+    }
+    <ul class="log-list">
+      @for (entry of gameLog(); track entry.id) {
+        <li
+          class="log-entry"
+          [class.log-bot]="entry.who === 'bot'"
+          [class.log-human]="entry.who === 'human'"
+          [class.log-system]="entry.who === 'system'"
+        >
+          {{ entry.text }}
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <div class="mac-container">
   <!-- Difficoltà bot -->
   <div class="difficulty-bar">
     <span class="diff-label">Difficoltà bot:</span>
@@ -27,7 +48,25 @@
         </div>
       </div>
     }
-    <div class="stock-info">Mazzo: {{ state().stock.length }}</div>
+    <!-- Mazzo: pila di carte coperte da cui pescare -->
+    <div class="stock-pile">
+      <button
+        type="button"
+        class="deck"
+        [disabled]="!isHumanTurn() || state().stock.length === 0"
+        (click)="draw()"
+        aria-label="Pesca una carta dal mazzo"
+      >
+        @if (state().stock.length === 0) {
+          <span class="deck-empty">vuoto</span>
+        } @else {
+          @for (i of stockPreview(); track i) {
+            <app-playing-card class="deck-card" [card]="cardBack" [faceDown]="true" />
+          }
+        }
+      </button>
+      <div class="stock-label">Mazzo: {{ state().stock.length }}</div>
+    </div>
   </div>
 
   <!-- Tavolo -->
@@ -109,16 +148,38 @@
     <button mat-button (click)="newGame()">Nuova partita</button>
   </div>
 
+  <!-- A riposo: partita non ancora avviata -->
+  @if (!started() && !idleDismissed()) {
+    <div class="overlay">
+      <div class="result-card">
+        <button
+          class="overlay-close"
+          type="button"
+          aria-label="Chiudi"
+          (click)="idleDismissed.set(true)"
+        >
+          ✕
+        </button>
+        <h2>Pronto a giocare?</h2>
+        <button mat-flat-button color="primary" (click)="newGame()">Nuova partita</button>
+      </div>
+    </div>
+  }
+
   <!-- Esito -->
-  @if (isWon()) {
+  @if (isWon() && !winDismissed()) {
     <div class="overlay">
       <div class="result-card">
         <h2>{{ winnerName() }} {{ state().winner === 0 ? 'hai vinto!' : 'ha vinto' }}</h2>
         @if (bestTimeSeconds() !== null) {
           <p class="best-time">Miglior tempo (vittoria): {{ formatTime(bestTimeSeconds()!) }}</p>
         }
-        <button mat-flat-button color="primary" (click)="newGame()">Gioca ancora</button>
+        <div class="result-actions">
+          <button mat-flat-button color="primary" (click)="newGame()">Gioca ancora</button>
+          <button mat-stroked-button (click)="winDismissed.set(true)">Chiudi</button>
+        </div>
       </div>
     </div>
   }
+  </div>
 </div>

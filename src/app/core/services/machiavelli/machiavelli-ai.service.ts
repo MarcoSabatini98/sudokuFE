@@ -10,7 +10,7 @@ import {
   isValidRun,
   isValidSet,
   orderMeldCards,
-  runIsAceHigh,
+  resolveAceHigh,
   splitRunWithCard,
   MachiavelliEngineService,
 } from './machiavelli-engine.service';
@@ -166,7 +166,7 @@ export class MachiavelliAiService {
 
     if (isValidRun(meld.cards)) {
       const suit = naturals[0].suit as Suit;
-      const aceHigh = runIsAceHigh(naturals.map((c) => c.rank as number));
+      const aceHigh = resolveAceHigh(meld.cards);
 
       const ordered = orderMeldCards(meld.cards);
       const anchor = ordered.findIndex((c) => !c.isJoker);
@@ -225,27 +225,63 @@ export class MachiavelliAiService {
   }
 
   private findRun(hand: Card[]): Card[] | null {
-    const bySuit = new Map<Suit, Card[]>();
+    const joker = hand.find((c) => c.isJoker) ?? null;
+    const bySuit = new Map<Suit, Map<number, Card>>();
     for (const c of hand) {
       if (c.isJoker) continue;
-      const list = bySuit.get(c.suit as Suit) ?? [];
-      if (!list.some((x) => x.rank === c.rank)) list.push(c);
-      bySuit.set(c.suit as Suit, list);
+      const byRank = bySuit.get(c.suit as Suit) ?? new Map<number, Card>();
+      if (!byRank.has(c.rank as number)) byRank.set(c.rank as number, c);
+      bySuit.set(c.suit as Suit, byRank);
     }
-    for (const cards of bySuit.values()) {
-      const sorted = [...cards].sort((a, b) => (a.rank as number) - (b.rank as number));
-      let run: Card[] = [];
-      for (const c of sorted) {
-        if (run.length === 0 || (c.rank as number) === (run[run.length - 1].rank as number) + 1) {
-          run.push(c);
-        } else {
-          if (run.length >= MIN_MELD_SIZE) return run;
-          run = [c];
-        }
-      }
-      if (run.length >= MIN_MELD_SIZE) return run;
+    for (const byRank of bySuit.values()) {
+      const run = this.bestRunInSuit(byRank, joker);
+      if (run) return run;
     }
     return null;
+  }
+
+  /** Migliore scala in un seme, considerando asso basso e asso alto (Q-K-A). */
+  private bestRunInSuit(byRank: Map<number, Card>, joker: Card | null): Card[] | null {
+    const base = [...byRank.keys()].sort((a, b) => a - b);
+    const views = [base];
+    if (byRank.has(1)) {
+      views.push([...base.filter((r) => r !== 1), ACE_HIGH].sort((a, b) => a - b)); // asso alto
+    }
+    let best: Card[] | null = null;
+    for (const ranks of views) {
+      const run = this.scanRun(ranks, byRank, joker);
+      if (run && (!best || run.length > best.length)) best = run;
+    }
+    return best;
+  }
+
+  /**
+   * Scorre i ranghi (già ordinati) di un seme e costruisce la scala più lunga,
+   * usando al massimo un jolly per colmare un singolo buco. ACE_HIGH (14) mappa
+   * sulla carta dell'asso.
+   */
+  private scanRun(ranks: number[], byRank: Map<number, Card>, joker: Card | null): Card[] | null {
+    const cardAt = (r: number) => byRank.get(r === ACE_HIGH ? 1 : r) as Card;
+    let best: Card[] | null = null;
+    for (let i = 0; i < ranks.length; i++) {
+      const seq: Card[] = [cardAt(ranks[i])];
+      let jokerUsed = false;
+      let prev = ranks[i];
+      for (let j = i + 1; j < ranks.length; j++) {
+        const gap = ranks[j] - prev;
+        if (gap === 1) {
+          seq.push(cardAt(ranks[j]));
+        } else if (gap === 2 && joker && !jokerUsed) {
+          jokerUsed = true;
+          seq.push(joker, cardAt(ranks[j]));
+        } else {
+          break;
+        }
+        prev = ranks[j];
+      }
+      if (seq.length >= MIN_MELD_SIZE && (!best || seq.length > best.length)) best = seq;
+    }
+    return best;
   }
 
   private cloneTable(table: Meld[]): Meld[] {
