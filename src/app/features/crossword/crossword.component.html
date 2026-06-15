@@ -1,9 +1,98 @@
-<div class="cw-container">
-  <h1 class="cw-title">Cruciverba</h1>
-  <p class="cw-subtitle">In creazione</p>
-  <p class="cw-text">
-    Questa sezione è in costruzione: a breve potrai risolvere schemi a parole
-    incrociate con le relative definizioni.
-  </p>
-  <a mat-stroked-button routerLink="/">Torna ai giochi</a>
+<div class="cw-page">
+  <header class="cw-header">
+    <h1 class="cw-title">Cruciverba</h1>
+    <a mat-button routerLink="/">← Giochi</a>
+  </header>
+
+  @if (loading()) {
+    <p class="cw-loading">Generazione schema…</p>
+  } @else if (crossword(); as cw) {
+    <div class="cw-layout">
+      <!-- Griglia -->
+      <div
+        class="cw-grid"
+        #grid
+        tabindex="0"
+        [style.grid-template-columns]="'repeat(' + cw.cols + ', var(--cw-cell))'"
+        (keydown)="onKeydown($event)"
+      >
+        @for (row of cw.cells; track $index; let r = $index) {
+          @for (cell of row; track $index; let c = $index) {
+            @if (cell) {
+              <div
+                class="cw-cell"
+                tabindex="0"
+                [class.selected]="isSelected(r, c)"
+                [class.highlight]="isHighlighted(r, c)"
+                [class.wrong]="isWrong(r, c)"
+                (click)="onCellClick(r, c); grid.focus()"
+                (keyup.enter)="onCellClick(r, c)"
+              >
+                @if (cellNumber(r, c); as n) {
+                  <span class="cw-num">{{ n }}</span>
+                }
+                <span class="cw-letter">{{ letterAt(r, c) }}</span>
+              </div>
+            } @else {
+              <div class="cw-cell black"></div>
+            }
+          }
+        }
+      </div>
+
+      <!-- Definizioni -->
+      <div class="cw-clues">
+        <section>
+          <h2>Orizzontali</h2>
+          <ul>
+            @for (entry of acrossEntries(); track entry.number) {
+              <li
+                tabindex="0"
+                [class.active]="isClueActive(entry)"
+                (click)="onClueClick(entry); grid.focus()"
+                (keyup.enter)="onClueClick(entry); grid.focus()"
+              >
+                <strong>{{ entry.number }}.</strong> {{ entry.clue }}
+              </li>
+            }
+          </ul>
+        </section>
+        <section>
+          <h2>Verticali</h2>
+          <ul>
+            @for (entry of downEntries(); track entry.number) {
+              <li
+                tabindex="0"
+                [class.active]="isClueActive(entry)"
+                (click)="onClueClick(entry); grid.focus()"
+                (keyup.enter)="onClueClick(entry); grid.focus()"
+              >
+                <strong>{{ entry.number }}.</strong> {{ entry.clue }}
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <!-- Controlli -->
+    <div class="cw-controls">
+      <button mat-flat-button color="primary" (click)="check()">Verifica</button>
+      <button mat-stroked-button (click)="reveal()">Soluzione</button>
+      <button mat-stroked-button (click)="clear()">Cancella</button>
+      <button mat-button (click)="newPuzzle()">Nuovo schema</button>
+    </div>
+
+    @if (solved()) {
+      <div class="cw-overlay">
+        <div class="cw-result">
+          <h2>Completato! 🎉</h2>
+          <button mat-flat-button color="primary" (click)="newPuzzle()">Nuovo schema</button>
+        </div>
+      </div>
+    }
+  } @else {
+    <p class="cw-loading">Impossibile caricare lo schema. Riprova.</p>
+    <button mat-stroked-button (click)="newPuzzle()">Riprova</button>
+  }
 </div>
