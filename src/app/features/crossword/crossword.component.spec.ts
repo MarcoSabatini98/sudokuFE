@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/angular';
 import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { EMPTY, of } from 'rxjs';
 
 import { CrosswordComponent } from './crossword.component';
 import { CrosswordService } from '../../core/services/crossword/crossword.service';
@@ -12,7 +13,11 @@ async function renderCrossword(): Promise<CrosswordComponent> {
     providers: [
       provideRouter([]),
       provideNoopAnimations(),
-      { provide: CrosswordService, useValue: { generate: () => of(mockCrossword()) } },
+      {
+        provide: CrosswordService,
+        useValue: { generate: () => of(mockCrossword()), saveGame: () => of({}), getRecords: () => of([]) },
+      },
+      { provide: MatSnackBar, useValue: { open: () => ({ onAction: () => EMPTY }) } },
     ],
   });
   return fixture.componentInstance;
@@ -20,6 +25,14 @@ async function renderCrossword(): Promise<CrosswordComponent> {
 
 function press(comp: CrosswordComponent, key: string): void {
   comp.onKeydown(new KeyboardEvent('keydown', { key }));
+}
+
+/** Rivela tutte le parole (CANE orizzontale + CASA verticale) per risolvere lo schema. */
+function solveAll(comp: CrosswordComponent): void {
+  comp.onClueClick(comp.acrossEntries()[0]);
+  comp.reveal();
+  comp.onClueClick(comp.downEntries()[0]);
+  comp.reveal();
 }
 
 describe('CrosswordComponent', () => {
@@ -76,11 +89,27 @@ describe('CrosswordComponent', () => {
 
   it('Cancella svuota la griglia', async () => {
     const comp = await renderCrossword();
-    comp.reveal();
+    solveAll(comp);
     expect(comp.solved()).toBe(true);
     comp.clear();
     expect(comp.solved()).toBe(false);
     expect(comp.letterAt(0, 0)).toBe('');
+  });
+
+  it('Soluzione rivela SOLO la parola selezionata', async () => {
+    const comp = await renderCrossword();
+    comp.onClueClick(comp.acrossEntries()[0]); // CANE (orizzontale)
+    comp.reveal();
+    expect(comp.letterAt(0, 3)).toBe('E'); // CANE rivelata
+    expect(comp.letterAt(2, 0)).toBe(''); // CASA (verticale) non rivelata
+  });
+
+  it('separa i contesti tra parentesi (grassetto) e mette la prima lettera maiuscola', async () => {
+    const comp = await renderCrossword();
+    expect(comp.clueTags('(zoologia) (entomologia) alato dell’ordine')).toBe('(zoologia) (entomologia)');
+    expect(comp.clueBody('(zoologia) alato dell’ordine')).toBe('Alato dell’ordine');
+    expect(comp.clueTags('senza contesto')).toBe('');
+    expect(comp.clueBody('senza contesto')).toBe('Senza contesto');
   });
 
   it('Verifica evidenzia le lettere sbagliate della parola selezionata', async () => {
@@ -118,7 +147,7 @@ describe('CrosswordComponent', () => {
   it('completa con la soluzione e risulta risolto', async () => {
     const comp = await renderCrossword();
     expect(comp.solved()).toBe(false);
-    comp.reveal();
+    solveAll(comp);
     expect(comp.solved()).toBe(true);
   });
 

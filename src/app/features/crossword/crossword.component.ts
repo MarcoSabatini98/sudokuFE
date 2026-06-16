@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { CrosswordService } from '../../core/services/crossword/crossword.service';
 import {
@@ -33,12 +34,13 @@ const ACCENTS: Record<string, string> = {
   selector: 'app-crossword',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, MatButtonModule],
+  imports: [RouterLink, MatButtonModule, MatSnackBarModule],
   templateUrl: './crossword.component.html',
   styleUrl: './crossword.component.css',
 })
 export class CrosswordComponent implements OnDestroy {
   private readonly api = inject(CrosswordService);
+  private readonly snackBar = inject(MatSnackBar);
 
   readonly difficulties = CROSSWORD_DIFFICULTIES;
   readonly difficultyLabels = CROSSWORD_DIFFICULTY_LABELS;
@@ -52,9 +54,8 @@ export class CrosswordComponent implements OnDestroy {
   /** Celle "r,c" risultate sbagliate all'ultima Verifica (solo quelle controllate). */
   readonly wrongCells = signal<Set<string>>(new Set());
 
-  /** Cronometro della partita corrente e miglior tempo personale per difficoltà. */
+  /** Cronometro della partita corrente. */
   readonly elapsed = signal(0);
-  readonly bestTime = signal<number | null>(null);
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private saved = false;
 
@@ -115,7 +116,6 @@ export class CrosswordComponent implements OnDestroy {
     this.selected.set(this.firstWhiteCell(cw));
     this.loading.set(false);
     this.saved = false;
-    this.bestTime.set(null);
     this.startTimer();
   }
 
@@ -132,21 +132,34 @@ export class CrosswordComponent implements OnDestroy {
     }
   }
 
-  /** A fine partita salva il tempo (best-effort) e carica il miglior tempo. */
+  /** A fine partita salva il tempo (best-effort) e annuncia la vittoria via snackbar. */
   private recordCompletion(): void {
+    const time = Math.max(1, this.elapsed());
     this.api
-      .saveGame({ difficulty: this.difficulty(), time_seconds: Math.max(1, this.elapsed()) })
-      .subscribe({ next: () => this.loadBestTime(), error: () => undefined });
+      .saveGame({ difficulty: this.difficulty(), time_seconds: time })
+      .subscribe({ next: () => this.announceWin(time), error: () => this.announceWin(time) });
   }
 
-  private loadBestTime(): void {
+  private announceWin(time: number): void {
     this.api.getRecords().subscribe({
       next: (records) => {
         const record = records.find((r) => r.difficulty === this.difficulty());
-        this.bestTime.set(record ? record.best_time_seconds : null);
+        this.showWinSnackbar(time, record ? record.best_time_seconds : null);
       },
-      error: () => undefined,
+      error: () => this.showWinSnackbar(time, null),
     });
+  }
+
+  private showWinSnackbar(time: number, best: number | null): void {
+    const label = this.difficultyLabels[this.difficulty()];
+    const message =
+      best !== null
+        ? `Completato in ${this.formatTime(time)}! 🎉  Record ${label}: ${this.formatTime(best)}`
+        : `Completato in ${this.formatTime(time)}! 🎉`;
+    this.snackBar
+      .open(message, 'Nuovo schema', { duration: 9000 })
+      .onAction()
+      .subscribe(() => this.newPuzzle());
   }
 
   formatTime(seconds: number): string {
@@ -251,25 +264,32 @@ export class CrosswordComponent implements OnDestroy {
     const entry = this.activeEntry();
     const cw = this.crossword();
     if (!entry || !cw) return;
-    const [dr, dc] = entry.direction === 'across' ? [0, 1] : [1, 0];
     const next = new Set(this.wrongCells());
-    for (let i = 0; i < entry.length; i++) {
-      const r = entry.row + dr * i;
-      const c = entry.col + dc * i;
-      const key = `${r},${c}`;
-      const value = this.letterAt(r, c);
-      const solution = cw.cells[r][c]?.solution;
-      if (value !== '' && value !== solution) next.add(key);
-      else next.delete(key);
+    for (const { row, col } of this.entryCells(entry)) {
+      const value = this.letterAt(row, col);
+      const wrong = value !== '' && value !== cw.cells[row][col]?.solution;
+      if (wrong) next.add(`${row},${col}`);
+      else next.delete(`${row},${col}`);
     }
     this.wrongCells.set(next);
   }
 
+  /** Rivela SOLO la parola attualmente selezionata (non tutto lo schema). */
   reveal(): void {
+    const entry = this.activeEntry();
     const cw = this.crossword();
-    if (!cw) return;
-    this.userGrid.set(cw.cells.map((row) => row.map((cell) => (cell ? cell.solution : ''))));
-    this.wrongCells.set(new Set());
+    if (!entry || !cw) return;
+    const cells = this.entryCells(entry);
+    this.userGrid.update((grid) => {
+      const copy = grid.map((r) => [...r]);
+      for (const { row, col } of cells) copy[row][col] = cw.cells[row][col]?.solution ?? '';
+      return copy;
+    });
+    this.wrongCells.update((set) => {
+      const next = new Set(set);
+      for (const { row, col } of cells) next.delete(`${row},${col}`);
+      return next;
+    });
   }
 
   clear(): void {
@@ -279,12 +299,33 @@ export class CrosswordComponent implements OnDestroy {
     this.wrongCells.set(new Set());
   }
 
+  /** Contesti tra parentesi a inizio definizione, es. "(zoologia) (entomologia)". */
+  clueTags(clue: string): string {
+    const match = clue.match(/^((?:\([^)]*\)\s*)+)/);
+    return match ? match[1].trim() : '';
+  }
+
+  /** Corpo della definizione senza i contesti, con la prima lettera maiuscola. */
+  clueBody(clue: string): string {
+    const body = clue.replace(/^(?:\([^)]*\)\s*)+/, '').trim();
+    return body ? body.charAt(0).toUpperCase() + body.slice(1) : body;
+  }
+
   // -- Helper privati --------------------------------------------------------
 
   private entriesByDir(dir: CrosswordDirection): CrosswordEntry[] {
     return (this.crossword()?.entries ?? [])
       .filter((e) => e.direction === dir)
       .sort((a, b) => a.number - b.number);
+  }
+
+  /** Tutte le celle (in ordine) appartenenti a una definizione. */
+  private entryCells(entry: CrosswordEntry): CellPos[] {
+    const [dr, dc] = entry.direction === 'across' ? [0, 1] : [1, 0];
+    return Array.from({ length: entry.length }, (_, i) => ({
+      row: entry.row + dr * i,
+      col: entry.col + dc * i,
+    }));
   }
 
   private cellInEntry(entry: CrosswordEntry, row: number, col: number): boolean {

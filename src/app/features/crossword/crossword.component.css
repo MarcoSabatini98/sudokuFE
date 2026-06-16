@@ -215,11 +215,21 @@
   transition: background 0.12s ease;
 }
 
-.cw-clues li strong {
+.cw-clues li .cw-clue-num {
   flex: 0 0 1.7rem;
   text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--clr-text-secondary, #5b6478);
+}
+
+.cw-clue-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Contesti tra parentesi: in grassetto */
+.cw-tags {
+  font-weight: 700;
 }
 
 .cw-clues li:hover {
@@ -232,7 +242,7 @@
   font-weight: 600;
 }
 
-.cw-clues li.active strong {
+.cw-clues li.active .cw-clue-num {
   color: var(--clr-selected, #3b82f6);
 }
 
