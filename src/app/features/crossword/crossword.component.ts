@@ -49,8 +49,8 @@ export class CrosswordComponent implements OnDestroy {
   readonly userGrid = signal<string[][]>([]);
   readonly selected = signal<CellPos | null>(null);
   readonly direction = signal<CrosswordDirection>('across');
-  /** Quando true, le lettere errate vengono evidenziate. */
-  readonly showErrors = signal(false);
+  /** Celle "r,c" risultate sbagliate all'ultima Verifica (solo quelle controllate). */
+  readonly wrongCells = signal<Set<string>>(new Set());
 
   /** Cronometro della partita corrente e miglior tempo personale per difficoltà. */
   readonly elapsed = signal(0);
@@ -110,7 +110,7 @@ export class CrosswordComponent implements OnDestroy {
   private loadCrossword(cw: Crossword): void {
     this.crossword.set(cw);
     this.userGrid.set(cw.cells.map((row) => row.map(() => '')));
-    this.showErrors.set(false);
+    this.wrongCells.set(new Set());
     this.direction.set('across');
     this.selected.set(this.firstWhiteCell(cw));
     this.loading.set(false);
@@ -180,10 +180,7 @@ export class CrosswordComponent implements OnDestroy {
   }
 
   isWrong(row: number, col: number): boolean {
-    if (!this.showErrors()) return false;
-    const cell = this.crossword()?.cells[row]?.[col];
-    const value = this.letterAt(row, col);
-    return !!cell && value !== '' && value !== cell.solution;
+    return this.wrongCells().has(`${row},${col}`);
   }
 
   // -- Interazione -----------------------------------------------------------
@@ -249,22 +246,37 @@ export class CrosswordComponent implements OnDestroy {
 
   // -- Azioni ----------------------------------------------------------------
 
+  /** Verifica SOLO la parola attualmente selezionata (non tutto lo schema). */
   check(): void {
-    this.showErrors.set(true);
+    const entry = this.activeEntry();
+    const cw = this.crossword();
+    if (!entry || !cw) return;
+    const [dr, dc] = entry.direction === 'across' ? [0, 1] : [1, 0];
+    const next = new Set(this.wrongCells());
+    for (let i = 0; i < entry.length; i++) {
+      const r = entry.row + dr * i;
+      const c = entry.col + dc * i;
+      const key = `${r},${c}`;
+      const value = this.letterAt(r, c);
+      const solution = cw.cells[r][c]?.solution;
+      if (value !== '' && value !== solution) next.add(key);
+      else next.delete(key);
+    }
+    this.wrongCells.set(next);
   }
 
   reveal(): void {
     const cw = this.crossword();
     if (!cw) return;
     this.userGrid.set(cw.cells.map((row) => row.map((cell) => (cell ? cell.solution : ''))));
-    this.showErrors.set(false);
+    this.wrongCells.set(new Set());
   }
 
   clear(): void {
     const cw = this.crossword();
     if (!cw) return;
     this.userGrid.set(cw.cells.map((row) => row.map(() => '')));
-    this.showErrors.set(false);
+    this.wrongCells.set(new Set());
   }
 
   // -- Helper privati --------------------------------------------------------
@@ -288,6 +300,15 @@ export class CrosswordComponent implements OnDestroy {
       copy[sel.row][sel.col] = letter;
       return copy;
     });
+    // Riscrivere una casella segnata sbagliata ne toglie l'evidenziazione.
+    const key = `${sel.row},${sel.col}`;
+    if (this.wrongCells().has(key)) {
+      this.wrongCells.update((set) => {
+        const next = new Set(set);
+        next.delete(key);
+        return next;
+      });
+    }
   }
 
   private backspace(sel: CellPos): void {
