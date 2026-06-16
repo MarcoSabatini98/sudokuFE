@@ -26,7 +26,10 @@
     <div class="cw-active-clue">
       @if (activeEntry(); as e) {
         <span class="cw-active-tag">{{ e.number }} {{ e.direction === 'across' ? 'Orizz.' : 'Vert.' }}</span>
-        <span class="cw-active-text">{{ e.clue }}</span>
+        <span class="cw-active-text">
+          @if (clueTags(e.clue); as tags) { <strong class="cw-tags">{{ tags }}</strong> }
+          {{ clueBody(e.clue) }}
+        </span>
       } @else {
         <span class="cw-active-hint">Seleziona una casella per leggere la definizione</span>
       }
@@ -86,7 +89,11 @@
                 (click)="onClueClick(entry); grid.focus()"
                 (keyup.enter)="onClueClick(entry); grid.focus()"
               >
-                <strong>{{ entry.number }}.</strong> {{ entry.clue }}
+                <strong class="cw-clue-num">{{ entry.number }}.</strong>
+                <span class="cw-clue-text">
+                  @if (clueTags(entry.clue); as tags) { <strong class="cw-tags">{{ tags }}</strong> }
+                  {{ clueBody(entry.clue) }}
+                </span>
               </li>
             }
           </ul>
@@ -101,7 +108,11 @@
                 (click)="onClueClick(entry); grid.focus()"
                 (keyup.enter)="onClueClick(entry); grid.focus()"
               >
-                <strong>{{ entry.number }}.</strong> {{ entry.clue }}
+                <strong class="cw-clue-num">{{ entry.number }}.</strong>
+                <span class="cw-clue-text">
+                  @if (clueTags(entry.clue); as tags) { <strong class="cw-tags">{{ tags }}</strong> }
+                  {{ clueBody(entry.clue) }}
+                </span>
               </li>
             }
           </ul>
@@ -109,20 +120,6 @@
       </div>
     </div>
 
-    @if (solved()) {
-      <div class="cw-overlay">
-        <div class="cw-result">
-          <h2>Completato! 🎉</h2>
-          <p class="cw-result-time">Tempo: {{ formatTime(elapsed()) }}</p>
-          @if (bestTime() !== null) {
-            <p class="cw-result-best">
-              Miglior tempo ({{ difficultyLabels[difficulty()] }}): {{ formatTime(bestTime()!) }}
-            </p>
-          }
-          <button mat-flat-button color="primary" (click)="newPuzzle()">Nuovo schema</button>
-        </div>
-      </div>
-    }
   } @else {
     <p class="cw-loading">Impossibile caricare lo schema. Riprova.</p>
     <button mat-stroked-button (click)="newPuzzle()">Riprova</button>
