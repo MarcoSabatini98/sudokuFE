@@ -24,7 +24,6 @@ import {
   BOT_THINK_DELAY_MS,
   BOT_REVEAL_PAUSE_MS,
   HAND_SORT_SUIT_ORDER,
-  PLAYER_COUNT,
   RANK_LABEL,
   SUIT_SYMBOL,
 } from '../../core/constants/machiavelli.constants';
@@ -102,59 +101,42 @@ export class MachiavelliComponent {
   readonly gameLog = signal<LogEntry[]>([]);
   private logSeq = 0;
 
-  /** false finché non si preme "Nuova partita": il gioco non parte da solo. */
-  readonly started = signal(false);
-  /** true quando l'utente chiude il popup di vittoria senza rigiocare. */
-  readonly winDismissed = signal(false);
-  /** true quando l'utente chiude il popup iniziale per navigare altrove. */
-  readonly idleDismissed = signal(false);
-
   readonly opponents = computed(() => this.state().players.filter((p) => p.isAI));
   /** Carte di dorso da impilare per dare l'idea del mazzo (max 3). */
   readonly stockPreview = computed(() =>
     Array.from({ length: Math.min(this.state().stock.length, 3) }, (_, i) => i)
   );
   readonly isHumanTurn = computed(
-    () =>
-      this.started() &&
-      this.state().currentPlayer === 0 &&
-      this.state().phase === 'playing' &&
-      !this.thinking()
+    () => this.state().currentPlayer === 0 && this.state().phase === 'playing' && !this.thinking()
+  );
+  /** Si può pescare solo se non hai già calato carte in questo turno. */
+  readonly canDraw = computed(
+    () => this.isHumanTurn() && this.state().stock.length > 0 && !this.canUndoMove()
   );
   readonly isWon = computed(() => this.state().phase === 'won');
-  readonly winnerName = computed(() => {
-    const w = this.state().winner;
-    return w !== null ? this.state().players[w].name : '';
-  });
 
   constructor() {
-    // Stato a riposo: carte distribuite e visibili, ma la partita parte solo
-    // quando l'utente preme "Nuova partita".
-    this.state.set(this.engine.newGame());
-    this.syncWorkingView();
+    // All'apertura la partita è già pronta e tocca all'umano: board in attesa.
+    this.initGame();
   }
 
   /**
-   * Avvia una partita: log pulito, il primo a giocare è sempre un bot scelto a
-   * caso (così l'umano non parte mai per primo); il giro prosegue a rotazione
-   * e l'umano gioca quando tocca a lui.
+   * Avvia/riavvia una partita: carte distribuite, log pulito e turno all'umano.
+   * La partita "inizia" davvero quando l'umano conferma la prima mossa (i bot
+   * giocano solo dopo).
    */
   private initGame(): void {
     const state = this.engine.newGame();
-    state.currentPlayer = 1 + Math.floor(Math.random() * (PLAYER_COUNT - 1));
+    state.currentPlayer = 0; // l'umano gioca per primo
     this.state.set(state);
     this.thinking.set(false);
-    this.started.set(true);
-    this.winDismissed.set(false);
     this.startTime = Date.now();
     this.resultSaved = false;
     this.bestTimeSeconds.set(null);
     this.handOrder = null;
     this.gameLog.set([]);
-    this.pushLog('system', `Nuova partita · inizia ${state.players[state.currentPlayer].name}`);
-    this.syncWorkingView();
-    if (state.currentPlayer === 0) this.startHumanTurn();
-    else void this.runAiTurns();
+    this.pushLog('system', 'Nuova partita · tocca a te');
+    this.startHumanTurn();
   }
 
   /** Aggiunge una riga al log (più recente in cima). */
@@ -393,6 +375,13 @@ export class MachiavelliComponent {
   }
 
   draw(): void {
+    // Con carte già calate non si può pescare: prima si annulla il turno.
+    if (this.canUndoMove()) {
+      this.snack.open('Hai carte in gioco: annulla il turno prima di pescare.', 'OK', {
+        duration: 3000,
+      });
+      return;
+    }
     // L'ordine preferito (handOrder) viene riapplicato da startHumanTurn: la
     // carta pescata finisce in coda, il resto resta ordinato.
     const next = this.engine.drawFromStock(this.state(), 0);
@@ -478,7 +467,11 @@ export class MachiavelliComponent {
     this.resultSaved = true;
 
     const w = this.state().winner;
-    if (w !== null) this.pushLog('system', `🏆 ${this.state().players[w].name} ha vinto`);
+    if (w !== null) {
+      this.pushLog('system', `🏆 ${this.state().players[w].name} ha vinto`);
+      const msg = w === 0 ? 'Hai vinto! 🎉' : `${this.state().players[w].name} ha vinto`;
+      this.snack.open(msg, 'OK', { duration: 5000 });
+    }
 
     const duration = Math.max(1, Math.round((Date.now() - this.startTime) / 1000));
     const won = this.state().winner === 0;
