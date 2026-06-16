@@ -53,7 +53,7 @@
       <button
         type="button"
         class="deck"
-        [disabled]="!isHumanTurn() || state().stock.length === 0"
+        [disabled]="!canDraw()"
         (click)="draw()"
         aria-label="Pesca una carta dal mazzo"
       >
@@ -135,7 +135,7 @@
     <button mat-flat-button color="primary" [disabled]="!isHumanTurn()" (click)="confirmTurn()">
       Conferma turno
     </button>
-    <button mat-stroked-button [disabled]="!isHumanTurn()" (click)="draw()">Pesca</button>
+    <button mat-stroked-button [disabled]="!canDraw()" (click)="draw()">Pesca</button>
     <button mat-stroked-button [disabled]="!isHumanTurn()" (click)="sortHand()">Ordina mano</button>
     <button
       mat-stroked-button
@@ -148,38 +148,5 @@
     <button mat-button (click)="newGame()">Nuova partita</button>
   </div>
 
-  <!-- A riposo: partita non ancora avviata -->
-  @if (!started() && !idleDismissed()) {
-    <div class="overlay">
-      <div class="result-card">
-        <button
-          class="overlay-close"
-          type="button"
-          aria-label="Chiudi"
-          (click)="idleDismissed.set(true)"
-        >
-          ✕
-        </button>
-        <h2>Pronto a giocare?</h2>
-        <button mat-flat-button color="primary" (click)="newGame()">Nuova partita</button>
-      </div>
-    </div>
-  }
-
-  <!-- Esito -->
-  @if (isWon() && !winDismissed()) {
-    <div class="overlay">
-      <div class="result-card">
-        <h2>{{ winnerName() }} {{ state().winner === 0 ? 'hai vinto!' : 'ha vinto' }}</h2>
-        @if (bestTimeSeconds() !== null) {
-          <p class="best-time">Miglior tempo (vittoria): {{ formatTime(bestTimeSeconds()!) }}</p>
-        }
-        <div class="result-actions">
-          <button mat-flat-button color="primary" (click)="newGame()">Gioca ancora</button>
-          <button mat-stroked-button (click)="winDismissed.set(true)">Chiudi</button>
-        </div>
-      </div>
-    </div>
-  }
   </div>
 </div>
