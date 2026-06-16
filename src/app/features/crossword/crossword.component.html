@@ -1,6 +1,7 @@
 <div class="cw-page">
   <header class="cw-header">
     <h1 class="cw-title">Cruciverba</h1>
+    <span class="cw-timer">{{ formatTime(elapsed()) }}</span>
     <a mat-button routerLink="/">← Giochi</a>
   </header>
 
@@ -111,6 +112,12 @@
       <div class="cw-overlay">
         <div class="cw-result">
           <h2>Completato! 🎉</h2>
+          <p class="cw-result-time">Tempo: {{ formatTime(elapsed()) }}</p>
+          @if (bestTime() !== null) {
+            <p class="cw-result-best">
+              Miglior tempo ({{ difficultyLabels[difficulty()] }}): {{ formatTime(bestTime()!) }}
+            </p>
+          }
           <button mat-flat-button color="primary" (click)="newPuzzle()">Nuovo schema</button>
         </div>
       </div>

@@ -34,3 +34,13 @@ export interface Crossword {
   cells: (CrosswordCell | null)[][];
   entries: CrosswordEntry[];
 }
+
+export interface CrosswordGameResult {
+  difficulty: CrosswordDifficulty;
+  time_seconds: number;
+}
+
+export interface CrosswordRecord {
+  difficulty: CrosswordDifficulty;
+  best_time_seconds: number;
+}

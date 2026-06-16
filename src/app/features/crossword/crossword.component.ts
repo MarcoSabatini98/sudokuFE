@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -29,7 +37,7 @@ const ACCENTS: Record<string, string> = {
   templateUrl: './crossword.component.html',
   styleUrl: './crossword.component.css',
 })
-export class CrosswordComponent {
+export class CrosswordComponent implements OnDestroy {
   private readonly api = inject(CrosswordService);
 
   readonly difficulties = CROSSWORD_DIFFICULTIES;
@@ -43,6 +51,12 @@ export class CrosswordComponent {
   readonly direction = signal<CrosswordDirection>('across');
   /** Quando true, le lettere errate vengono evidenziate. */
   readonly showErrors = signal(false);
+
+  /** Cronometro della partita corrente e miglior tempo personale per difficoltà. */
+  readonly elapsed = signal(0);
+  readonly bestTime = signal<number | null>(null);
+  private intervalId: ReturnType<typeof setInterval> | null = null;
+  private saved = false;
 
   readonly acrossEntries = computed(() => this.entriesByDir('across'));
   readonly downEntries = computed(() => this.entriesByDir('down'));
@@ -65,6 +79,18 @@ export class CrosswordComponent {
 
   constructor() {
     this.newPuzzle();
+    // Salva il completamento una sola volta, quando la griglia diventa corretta.
+    effect(() => {
+      if (this.crossword() && this.solved() && !this.saved) {
+        this.saved = true;
+        this.stopTimer();
+        this.recordCompletion();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopTimer();
   }
 
   newPuzzle(): void {
@@ -88,6 +114,45 @@ export class CrosswordComponent {
     this.direction.set('across');
     this.selected.set(this.firstWhiteCell(cw));
     this.loading.set(false);
+    this.saved = false;
+    this.bestTime.set(null);
+    this.startTimer();
+  }
+
+  private startTimer(): void {
+    this.stopTimer();
+    this.elapsed.set(0);
+    this.intervalId = setInterval(() => this.elapsed.update((s) => s + 1), 1000);
+  }
+
+  private stopTimer(): void {
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
+
+  /** A fine partita salva il tempo (best-effort) e carica il miglior tempo. */
+  private recordCompletion(): void {
+    this.api
+      .saveGame({ difficulty: this.difficulty(), time_seconds: Math.max(1, this.elapsed()) })
+      .subscribe({ next: () => this.loadBestTime(), error: () => undefined });
+  }
+
+  private loadBestTime(): void {
+    this.api.getRecords().subscribe({
+      next: (records) => {
+        const record = records.find((r) => r.difficulty === this.difficulty());
+        this.bestTime.set(record ? record.best_time_seconds : null);
+      },
+      error: () => undefined,
+    });
+  }
+
+  formatTime(seconds: number): string {
+    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const ss = String(seconds % 60).padStart(2, '0');
+    return `${mm}:${ss}`;
   }
 
   // -- Stato celle -----------------------------------------------------------
