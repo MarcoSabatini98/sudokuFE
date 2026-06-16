@@ -24,4 +24,24 @@ describe('CrosswordService', () => {
     expect(req.request.method).toBe('GET');
     req.flush({ status: 'success', success: true, data: mockCw });
   });
+
+  it('POSTs a game completion to /crossword/games', () => {
+    service().saveGame({ difficulty: 'medium', time_seconds: 540 }).subscribe();
+
+    const req = mock().expectOne((r) => r.url.endsWith('/crossword/games') && r.method === 'POST');
+    expect(req.request.body).toEqual({ difficulty: 'medium', time_seconds: 540 });
+    req.flush({ status: 'success', success: true, data: { id: 1 } });
+  });
+
+  it('GETs the records and unwraps data', () => {
+    const records = [{ difficulty: 'easy' as const, best_time_seconds: 240 }];
+
+    service().getRecords().subscribe((result) => {
+      expect(result).toEqual(records);
+    });
+
+    const req = mock().expectOne((r) => r.url.endsWith('/crossword/records'));
+    expect(req.request.method).toBe('GET');
+    req.flush({ status: 'success', success: true, data: records });
+  });
 });

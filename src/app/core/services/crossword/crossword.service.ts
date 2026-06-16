@@ -4,7 +4,12 @@ import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../shared/models/api-response.model';
-import { Crossword, CrosswordDifficulty } from '../../../shared/models/crossword.model';
+import {
+  Crossword,
+  CrosswordDifficulty,
+  CrosswordGameResult,
+  CrosswordRecord,
+} from '../../../shared/models/crossword.model';
 
 @Injectable({ providedIn: 'root' })
 export class CrosswordService {
@@ -15,6 +20,18 @@ export class CrosswordService {
     const params = new HttpParams().set('difficulty', difficulty);
     return this.http
       .get<ApiResponse<Crossword>>(`${this.API_URL}/generate`, { params })
+      .pipe(map((res) => res.data));
+  }
+
+  saveGame(payload: CrosswordGameResult): Observable<unknown> {
+    return this.http
+      .post<ApiResponse<unknown>>(`${this.API_URL}/games`, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  getRecords(): Observable<CrosswordRecord[]> {
+    return this.http
+      .get<ApiResponse<CrosswordRecord[]>>(`${this.API_URL}/records`)
       .pipe(map((res) => res.data));
   }
 }

@@ -20,6 +20,26 @@
   font-weight: 800;
 }
 
+.cw-timer {
+  margin-left: auto;
+  margin-right: 1rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.cw-result-time {
+  margin: 0;
+  font-weight: 700;
+}
+
+.cw-result-best {
+  margin: 0;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
 .cw-difficulty {
   display: flex;
   flex-wrap: wrap;

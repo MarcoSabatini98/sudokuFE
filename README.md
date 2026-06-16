@@ -8,10 +8,11 @@
 
 ### Descrizione
 
-Raccolta di giochi sviluppata con **Angular 21**. Dalla home si scelgono due giochi:
+Raccolta di giochi sviluppata con **Angular 21**. Dalla home si scelgono tre giochi:
 
 - **Sudoku** single-player: quattro livelli di difficoltà, timer, note automatiche, modalità timbro, cronologia partite e record personali.
 - **Macchiavelli** (gioco di carte): 1 umano contro 3 bot, con drag & drop delle carte. Motore di gioco e AI interamente lato frontend; il backend salva solo l'esito delle partite e il miglior tempo di vittoria.
+- **Cruciverba**: schema denso generato dal dizionario italiano, tre difficoltà (dimensione griglia), cronometro e miglior tempo per difficoltà.
 
 Tema chiaro/scuro con persistenza.
 
@@ -24,6 +25,15 @@ Dalla home apri la card **Macchiavelli**. Hai 13 carte; trascina combinazioni va
 - **Jolly**: sostituisce qualsiasi carta mancante.
 
 Puoi riorganizzare liberamente il tavolo, ma a fine turno ogni combinazione deve avere almeno 3 carte e devi aver calato almeno una carta dalla tua mano (altrimenti **Pesca**). Svuota la mano per vincere. Le carte sono disegnate via CSS: nessun asset esterno, funziona offline.
+
+### Cruciverba — come si gioca
+
+Dalla home apri la card **Cruciverba** e scegli la difficoltà (**Facile/Medio/Difficile**, cambia la dimensione della griglia). Lo schema è denso, in stile cruciverba da giornale, con definizioni in italiano dal dizionario.
+
+1. Clicca una casella e digita le lettere; le frecce o un secondo click sulla casella cambiano direzione (orizzontale/verticale).
+2. Le liste **Orizzontali** e **Verticali** a lato mostrano le definizioni: clicca una voce per saltare a quella parola.
+3. **Verifica** evidenzia le lettere errate, **Soluzione** rivela tutto, **Cancella** svuota, **Nuovo schema** ne genera un altro.
+4. Un cronometro misura il tempo: completando lo schema la partita viene salvata e viene mostrato il **miglior tempo** per quella difficoltà.
 
 ---
 
@@ -171,7 +181,32 @@ Crea il collegamento **Sudoku** sul Desktop con l'icona del gioco.
 
 ### Description
 
-Single-player Sudoku game built with **Angular 21**. Four difficulty levels, timer, automatic notes, stamp mode, game history, and personal records. Light/dark theme with persistence.
+A collection of games built with **Angular 21**. From the home you pick one of three games:
+
+- **Sudoku** single-player: four difficulty levels, timer, automatic notes, stamp mode, game history and personal records.
+- **Machiavelli** (card game): 1 human vs 3 bots, drag & drop. Game engine and AI fully on the frontend; the backend only stores results and the best winning time.
+- **Crossword**: a dense grid generated from the Italian dictionary, three difficulties (grid size), a stopwatch and a best time per difficulty.
+
+Light/dark theme with persistence.
+
+### Machiavelli — how to play
+
+Open the **Machiavelli** card from the home. You have 13 cards; drag valid melds onto the table:
+
+- **Run**: 3+ cards of the same suit, consecutive ranks (ace high or low).
+- **Set**: 3+ cards of the same rank, different suits.
+- **Joker**: stands in for any missing card.
+
+You may rearrange the table freely, but at the end of your turn every meld must have at least 3 cards and you must have played at least one card from your hand (otherwise **Draw**). Empty your hand to win. Cards are drawn in CSS: no external assets, works offline.
+
+### Crossword — how to play
+
+Open the **Crossword** card and pick a difficulty (**Easy/Medium/Hard**, which changes the grid size). The grid is dense, newspaper-style, with Italian clues from the dictionary.
+
+1. Click a cell and type letters; arrow keys or a second click on a cell switch direction (across/down).
+2. The **Across** and **Down** lists show the clues: click an entry to jump to that word.
+3. **Verifica** highlights wrong letters, **Soluzione** reveals everything, **Cancella** clears, **Nuovo schema** generates another.
+4. A stopwatch tracks your time: completing the grid saves the game and shows the **best time** for that difficulty.
 
 ---
 
