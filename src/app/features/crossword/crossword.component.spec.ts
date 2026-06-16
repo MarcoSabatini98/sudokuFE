@@ -83,11 +83,36 @@ describe('CrosswordComponent', () => {
     expect(comp.letterAt(0, 0)).toBe('');
   });
 
-  it('Verifica evidenzia le lettere sbagliate', async () => {
+  it('Verifica evidenzia le lettere sbagliate della parola selezionata', async () => {
     const comp = await renderCrossword();
     press(comp, 'x'); // sbagliata in (0,0)
     comp.check();
     expect(comp.isWrong(0, 0)).toBe(true);
+  });
+
+  it('Verifica controlla SOLO la parola selezionata, non le altre', async () => {
+    const comp = await renderCrossword();
+    comp.onCellClick(0, 1); // CANE (orizzontale)
+    press(comp, 'z'); // (0,1) sbagliata in CANE
+    comp.onClueClick(comp.downEntries()[0]); // seleziona CASA (verticale)
+    comp.onCellClick(1, 0);
+    press(comp, 'z'); // (1,0) sbagliata in CASA
+
+    comp.onClueClick(comp.acrossEntries()[0]); // riseleziona CANE
+    comp.check();
+
+    expect(comp.isWrong(0, 1)).toBe(true); // CANE selezionata → segnalata
+    expect(comp.isWrong(1, 0)).toBe(false); // CASA non selezionata → NON segnalata
+  });
+
+  it('riscrivere una casella sbagliata ne toglie l’evidenziazione', async () => {
+    const comp = await renderCrossword();
+    press(comp, 'x'); // (0,0) sbagliata
+    comp.check();
+    expect(comp.isWrong(0, 0)).toBe(true);
+    comp.onCellClick(0, 0);
+    press(comp, 'c'); // riscrive (0,0)
+    expect(comp.isWrong(0, 0)).toBe(false);
   });
 
   it('completa con la soluzione e risulta risolto', async () => {
