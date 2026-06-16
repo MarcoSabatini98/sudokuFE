@@ -27,7 +27,6 @@ describe('HomeComponent (hub)', () => {
     expect(screen.getByText('Sudoku')).toBeTruthy();
     expect(screen.getByText('Macchiavelli')).toBeTruthy();
     expect(screen.getByText('Cruciverba')).toBeTruthy();
-    expect(screen.getByText('In creazione')).toBeTruthy(); // badge sul Cruciverba
   });
 
   it('should navigate to /sudoku on Sudoku card click', async () => {

@@ -22,18 +22,19 @@
   @if (loading()) {
     <p class="cw-loading">Generazione schema…</p>
   } @else if (crossword(); as cw) {
-    <div class="cw-body">
-      <!-- Colonna sinistra: clue attiva + griglia + controlli -->
-      <div class="cw-main">
-        <div class="cw-active-clue">
-          @if (activeEntry(); as e) {
-            <span class="cw-active-tag">{{ e.number }} {{ e.direction === 'across' ? 'Orizz.' : 'Vert.' }}</span>
-            <span class="cw-active-text">{{ e.clue }}</span>
-          } @else {
-            <span class="cw-active-hint">Seleziona una casella per leggere la definizione</span>
-          }
-        </div>
+    <!-- Definizione corrente: barra a tutta larghezza, si estende libera -->
+    <div class="cw-active-clue">
+      @if (activeEntry(); as e) {
+        <span class="cw-active-tag">{{ e.number }} {{ e.direction === 'across' ? 'Orizz.' : 'Vert.' }}</span>
+        <span class="cw-active-text">{{ e.clue }}</span>
+      } @else {
+        <span class="cw-active-hint">Seleziona una casella per leggere la definizione</span>
+      }
+    </div>
 
+    <div class="cw-body">
+      <!-- Griglia + controlli -->
+      <div class="cw-main">
         <div
           class="cw-grid"
           #grid

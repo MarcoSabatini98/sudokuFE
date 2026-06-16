@@ -39,7 +39,6 @@ export class HomeComponent {
       title: 'Cruciverba',
       description: 'Schemi a parole incrociate con definizioni.',
       route: '/crossword',
-      badge: 'In creazione',
     },
   ];
 
