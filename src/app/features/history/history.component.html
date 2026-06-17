@@ -1,81 +1,91 @@
-<div class="history-container">
-  <div class="history-header">
-    <a mat-button routerLink="/">← Home</a>
-    <h2>Cronologia partite</h2>
-    <a mat-button routerLink="/records">Record →</a>
-  </div>
+<div class="hist-page">
+  <header class="hist-hero">
+    <div class="hist-top">
+      <a class="hist-link" routerLink="/">← Home</a>
+      <a class="hist-link" routerLink="/records">Record →</a>
+    </div>
+    <h1 class="hist-title">Cronologia partite</h1>
+    <p class="hist-sub">Le tue ultime partite di Sudoku.</p>
+  </header>
 
-  <div class="filter-bar">
-    <mat-select
-      placeholder="Tutte le difficoltà"
-      [value]="selectedDifficulty()"
-      (valueChange)="onDifficultyChange($event)"
-      class="diff-filter"
+  <div class="hist-filters">
+    <button
+      type="button"
+      class="filter-pill"
+      [class.active]="selectedDifficulty() === ''"
+      (click)="onDifficultyChange('')"
     >
-      <mat-option value="">Tutte le difficoltà</mat-option>
-      @for (d of difficulties; track d) {
-        <mat-option [value]="d">{{ getLabel(d) }}</mat-option>
-      }
-    </mat-select>
+      Tutte
+    </button>
+    @for (d of difficulties; track d) {
+      <button
+        type="button"
+        class="filter-pill"
+        [style.--accent]="accents[d]"
+        [class.active]="selectedDifficulty() === d"
+        (click)="onDifficultyChange(d)"
+      >
+        {{ getLabel(d) }}
+      </button>
+    }
   </div>
 
   @if (loading()) {
-    <p class="loading-msg">Caricamento...</p>
+    <p class="hist-loading">Caricamento…</p>
   }
 
   @if (!loading() && result(); as r) {
     @if (r.data.length === 0) {
-      <div class="empty-state">
-        <span class="empty-icon">📋</span>
+      <div class="hist-empty">
+        <span class="hist-empty-icon">📋</span>
         <p>Nessuna partita registrata.</p>
       </div>
     } @else {
-      <table mat-table [dataSource]="r.data" class="history-table">
-        <ng-container matColumnDef="played_at">
-          <th mat-header-cell *matHeaderCellDef>Data</th>
-          <td mat-cell *matCellDef="let g">{{ formatDate(g.played_at) }}</td>
-        </ng-container>
+      <div class="hist-table">
+        <div class="hist-row hist-head">
+          <span>Data</span>
+          <span>Difficoltà</span>
+          <span>Tempo</span>
+          <span>Esito</span>
+        </div>
+        @for (g of r.data; track g.id) {
+          <div class="hist-row">
+            <span class="hist-date">{{ formatDate(g.played_at) }}</span>
+            <span>
+              <span class="diff-badge" [style.--accent]="accents[g.difficulty]">{{ getLabel(g.difficulty) }}</span>
+            </span>
+            <span class="hist-time">⏱ {{ formatTime(g.time_seconds) }}</span>
+            <span>
+              @if (g.completed) {
+                <span class="status-pill ok">✓ Completata</span>
+              } @else {
+                <span class="status-pill no">✗ Abbandonata</span>
+              }
+            </span>
+          </div>
+        }
+      </div>
 
-        <ng-container matColumnDef="difficulty">
-          <th mat-header-cell *matHeaderCellDef>Difficoltà</th>
-          <td mat-cell *matCellDef="let g">
-            <span class="diff-badge diff-{{g.difficulty}}">{{ getLabel(g.difficulty) }}</span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="time_seconds">
-          <th mat-header-cell *matHeaderCellDef>Tempo</th>
-          <td mat-cell *matCellDef="let g">
-            <span class="time-cell">⏱ {{ formatTime(g.time_seconds) }}</span>
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="completed">
-          <th mat-header-cell *matHeaderCellDef>Esito</th>
-          <td mat-cell *matCellDef="let g">
-            @if (g.completed) {
-              <span class="status-badge status-ok">✓ Completata</span>
-            } @else {
-              <span class="status-badge status-no">✗ Abbandonata</span>
-            }
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <div class="pagination">
-        <button mat-button
+      <div class="hist-pager">
+        <button
+          type="button"
+          class="pager-btn"
           [disabled]="r.pagination.page <= 1"
-          (click)="load(r.pagination.page - 1)">←</button>
-        <span class="page-info">
-          Pagina {{ r.pagination.page }} di {{ r.pagination.totalPages }}
-          <small>({{ r.pagination.total }} partite)</small>
+          (click)="load(r.pagination.page - 1)"
+        >
+          ←
+        </button>
+        <span class="pager-info">
+          Pagina {{ r.pagination.page }} di {{ r.pagination.totalPages }} · {{ r.pagination.total }} partite
         </span>
-        <button mat-button
+        <button
+          type="button"
+          class="pager-btn"
           [disabled]="r.pagination.page >= r.pagination.totalPages"
-          (click)="load(r.pagination.page + 1)">→</button>
+          (click)="load(r.pagination.page + 1)"
+        >
+          →
+        </button>
       </div>
     }
   }

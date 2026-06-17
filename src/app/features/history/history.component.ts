@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
 
 import { GameService } from '../../core/services/game/game.service';
 import { type Difficulty, DIFFICULTIES, DIFFICULTY_LABELS, type Game } from '../../shared/models/game.model';
@@ -15,7 +10,7 @@ import { formatTime } from '../../core/utils/time';
   selector: 'app-history',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, MatButtonModule, MatCardModule, MatSelectModule, MatTableModule, MatChipsModule],
+  imports: [RouterLink],
   templateUrl: './history.component.html',
   styleUrl: './history.component.css',
 })
@@ -24,11 +19,16 @@ export class HistoryComponent implements OnInit {
 
   readonly difficulties = DIFFICULTIES;
   readonly labels = DIFFICULTY_LABELS;
+  readonly accents: Record<string, string> = {
+    easy: '#10b981',
+    medium: '#3b82f6',
+    hard: '#f59e0b',
+    extreme: '#ef4444',
+  };
 
   getLabel(d: string): string {
     return this.labels[d as Difficulty] ?? d;
   }
-  readonly displayedColumns = ['played_at', 'difficulty', 'time_seconds', 'completed'];
 
   readonly result = signal<PaginatedData<Game> | null>(null);
   readonly loading = signal(false);

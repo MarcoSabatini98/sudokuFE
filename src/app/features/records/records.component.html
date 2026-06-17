@@ -1,35 +1,38 @@
-<div class="records-container">
-  <div class="records-header">
-    <a mat-button routerLink="/">← Home</a>
-    <h2>Record personali</h2>
-    <a mat-button routerLink="/history">Cronologia →</a>
-  </div>
+<div class="rec-page">
+  <header class="rec-hero">
+    <div class="rec-top">
+      <a class="rec-link" routerLink="/">← Home</a>
+      <a class="rec-link" routerLink="/history">Cronologia →</a>
+    </div>
+    <span class="rec-eyebrow">Sudoku</span>
+    <h1 class="rec-title">Record personali</h1>
+    <p class="rec-sub">I tuoi tempi migliori per difficoltà.</p>
+  </header>
 
   @if (loading()) {
-    <p class="loading-msg">Caricamento...</p>
-  }
-
-  @if (!loading()) {
-    <div class="records-grid">
+    <p class="rec-loading">Caricamento…</p>
+  } @else {
+    <div class="rec-grid">
       @for (diff of difficulties; track diff) {
-        <mat-card class="record-card">
-          <mat-card-header>
-            <mat-card-title>{{ labels[diff] }}</mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
+        <div class="rec-card" [style.--accent]="accents[diff]">
+          <span class="rec-name">{{ labels[diff] }}</span>
+
+          <span class="rec-stat">
             @if (recordMap().get(diff); as rec) {
-              <div class="record-time">{{ formatTime(rec.best_time_seconds) }}</div>
-              <div class="record-date">{{ rec.updated_at | date: 'dd/MM/yyyy' }}</div>
+              <span class="rec-time">{{ formatTime(rec.best_time_seconds) }}</span>
+              <span class="rec-date">{{ rec.updated_at | date: 'dd/MM/yyyy' }}</span>
             } @else {
-              <div class="no-record">Nessun record</div>
+              <span class="rec-empty">Nessun record</span>
             }
-          </mat-card-content>
-          <mat-card-actions>
-            <a mat-button [routerLink]="['/game']" [queryParams]="{ difficulty: diff }">
-              Gioca
-            </a>
-          </mat-card-actions>
-        </mat-card>
+          </span>
+
+          <a class="rec-cta" [routerLink]="['/game']" [queryParams]="{ difficulty: diff }">
+            Gioca
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </a>
+        </div>
       }
     </div>
   }
