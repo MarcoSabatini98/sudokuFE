@@ -1,14 +1,14 @@
 <div class="hub">
   <app-ambient-dots />
   <header class="hero">
-    <span class="hero-eyebrow">Raccolta</span>
-    <h1 class="hero-title">Giochi</h1>
-    <p class="hero-sub">Scegli cosa giocare oggi.</p>
+    <span class="hero-eyebrow">Statistiche</span>
+    <h1 class="hero-title">Record e cronologia</h1>
+    <p class="hero-sub">Scegli un gioco per vedere i tuoi tempi migliori e le partite giocate.</p>
   </header>
 
   <div class="game-grid">
     @for (game of games; track game.key) {
-      <button type="button" class="game-card" [style.--accent]="game.accent" (click)="open(game)">
+      <a class="game-card" [style.--accent]="game.accent" [routerLink]="game.route">
         <span class="game-icon">
           @switch (game.key) {
             @case ('sudoku') {
@@ -37,12 +37,12 @@
         <span class="game-desc">{{ game.description }}</span>
 
         <span class="game-cta">
-          Gioca
+          Apri
           <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </span>
-      </button>
+      </a>
     }
   </div>
 </div>

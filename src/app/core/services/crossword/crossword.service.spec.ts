@@ -44,4 +44,18 @@ describe('CrosswordService', () => {
     expect(req.request.method).toBe('GET');
     req.flush({ status: 'success', success: true, data: records });
   });
+
+  it('GETs the paginated history with optional difficulty filter', () => {
+    service().getHistory({ difficulty: 'hard', page: 1, limit: 15 }).subscribe();
+
+    const req = mock().expectOne((r) => r.url.endsWith('/crossword/games') && r.method === 'GET');
+    expect(req.request.params.get('difficulty')).toBe('hard');
+    expect(req.request.params.get('page')).toBe('1');
+    expect(req.request.params.get('limit')).toBe('15');
+    req.flush({
+      status: 'success',
+      success: true,
+      data: { data: [], pagination: { total: 0, page: 1, limit: 15, totalPages: 0 } },
+    });
+  });
 });

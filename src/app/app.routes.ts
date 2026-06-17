@@ -24,6 +24,13 @@ export const routes: Routes = [
       import('./features/machiavelli/machiavelli.component').then((m) => m.MachiavelliComponent),
   },
   {
+    path: 'machiavelli/stats',
+    loadComponent: () =>
+      import('./features/machiavelli-stats/machiavelli-stats.component').then(
+        (m) => m.MachiavelliStatsComponent
+      ),
+  },
+  {
     path: 'crossword',
     loadComponent: () =>
       import('./features/crossword-home/crossword-home.component').then(
@@ -36,19 +43,28 @@ export const routes: Routes = [
       import('./features/crossword/crossword.component').then((m) => m.CrosswordComponent),
   },
   {
+    path: 'crossword/stats',
+    loadComponent: () =>
+      import('./features/crossword-stats/crossword-stats.component').then(
+        (m) => m.CrosswordStatsComponent
+      ),
+  },
+  {
     path: 'game',
     loadComponent: () =>
       import('./features/game/game.component').then((m) => m.GameComponent),
   },
   {
-    path: 'history',
+    path: 'sudoku/stats',
     loadComponent: () =>
-      import('./features/history/history.component').then((m) => m.HistoryComponent),
+      import('./features/sudoku-stats/sudoku-stats.component').then((m) => m.SudokuStatsComponent),
   },
   {
-    path: 'records',
+    path: 'history-and-records',
     loadComponent: () =>
-      import('./features/records/records.component').then((m) => m.RecordsComponent),
+      import('./features/history-and-records/history-and-records.component').then(
+        (m) => m.HistoryAndRecordsComponent
+      ),
   },
   { path: '**', redirectTo: '' },
 ];

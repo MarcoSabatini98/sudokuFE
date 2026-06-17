@@ -157,3 +157,49 @@ a {
   background: var(--clr-surface-2) !important;
   color: var(--clr-text-primary) !important;
 }
+
+/* ── Scrollbar fini e trasparenti, thumb con effetto glass ──────── */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--clr-scrollbar, rgba(120, 130, 150, 0.4)) transparent;
+}
+
+/* WebKit / Chromium */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--clr-scrollbar, rgba(120, 130, 150, 0.4));
+  /* glass: bordo chiaro + leggero blur dietro la barretta */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--clr-scrollbar-hover, rgba(120, 130, 150, 0.65));
+}
+
+/* angolo in basso quando ci sono entrambe le barre */
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+:root {
+  --clr-scrollbar: rgba(90, 100, 125, 0.38);
+  --clr-scrollbar-hover: rgba(90, 100, 125, 0.6);
+}
+
+.dark-theme {
+  --clr-scrollbar: rgba(200, 210, 235, 0.28);
+  --clr-scrollbar-hover: rgba(200, 210, 235, 0.5);
+}

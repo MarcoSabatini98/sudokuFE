@@ -1,18 +1,19 @@
-.hist-page {
+.st-page {
+  position: relative;
+  isolation: isolate;
   max-width: 880px;
   margin: 0 auto;
   padding: clamp(2rem, 5vw, 3.5rem) 1.25rem 3.5rem;
 }
 
 /* ── Hero ─────────────────────────────────────────────── */
-
-.hist-top {
+.st-top {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1.25rem;
 }
 
-.hist-link {
+.st-link {
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--clr-text-secondary);
@@ -20,17 +21,30 @@
   transition: color 0.15s ease;
 }
 
-.hist-link:hover {
+.st-link:hover {
   color: var(--clr-text-primary);
 }
 
-.hist-hero {
+.st-hero {
   text-align: center;
-  margin-bottom: clamp(1.5rem, 4vw, 2.25rem);
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
 }
 
-.hist-title {
-  margin: 0 0 0.4rem;
+.st-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--clr-border-light);
+  border-radius: 1rem;
+  background: var(--clr-surface);
+}
+
+.st-title {
+  margin: 0.9rem 0 0.4rem;
   font-size: clamp(2rem, 5.5vw, 2.9rem);
   font-weight: 800;
   letter-spacing: -0.025em;
@@ -38,20 +52,97 @@
   color: var(--clr-text-primary);
 }
 
-.hist-sub {
+.st-sub {
   margin: 0;
   font-size: 1.02rem;
   color: var(--clr-text-secondary);
 }
 
-/* ── Filtri (pill) ────────────────────────────────────── */
+.st-section {
+  margin: 2rem 0 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+}
 
-.hist-filters {
+.st-loading {
+  text-align: center;
+  color: var(--clr-text-secondary);
+}
+
+/* ── Card record ──────────────────────────────────────── */
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.85rem;
+}
+
+.st-card {
+  --accent: var(--clr-selected);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 1.35rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border-light);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px var(--clr-shadow);
+  overflow: hidden;
+}
+
+.st-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+
+.st-name {
+  flex: 0 0 5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+}
+
+.st-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.st-time {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--clr-text-primary);
+}
+
+.st-meta {
+  font-size: 0.78rem;
+  color: var(--clr-text-muted);
+}
+
+.st-empty {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--clr-text-muted);
+}
+
+/* ── Filtri ───────────────────────────────────────────── */
+.st-filters {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .filter-pill {
@@ -80,33 +171,27 @@
 }
 
 /* ── Tabella ──────────────────────────────────────────── */
-
-.hist-loading {
-  text-align: center;
-  color: var(--clr-text-secondary);
-}
-
-.hist-table {
+.st-table {
   border: 1px solid var(--clr-border-light);
   border-radius: 1rem;
   overflow: hidden;
   background: var(--clr-surface);
 }
 
-.hist-row {
+.st-row {
   display: grid;
-  grid-template-columns: 1.4fr 0.9fr 0.8fr 1fr;
+  grid-template-columns: 1.4fr 0.9fr 1fr 0.8fr;
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1.1rem;
   border-top: 1px solid var(--clr-border-light);
 }
 
-.hist-row:first-child {
+.st-row:first-child {
   border-top: none;
 }
 
-.hist-head {
+.st-head {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -115,16 +200,16 @@
   background: var(--clr-surface-2);
 }
 
-.hist-row:not(.hist-head):hover {
+.st-row:not(.st-head):hover {
   background: var(--clr-surface-2);
 }
 
-.hist-date {
+.st-date {
   font-size: 0.88rem;
   color: var(--clr-text-secondary);
 }
 
-.hist-time {
+.st-time-cell {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--clr-text-primary);
@@ -155,13 +240,12 @@
 }
 
 .status-pill.no {
-  color: var(--clr-error-text);
+  color: var(--clr-error-text, #b91c1c);
   background: color-mix(in srgb, #ef4444 15%, transparent);
 }
 
 /* ── Paginazione ──────────────────────────────────────── */
-
-.hist-pager {
+.st-pager {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -199,14 +283,13 @@
 }
 
 /* ── Vuoto ────────────────────────────────────────────── */
-
-.hist-empty {
+.st-empty-box {
   text-align: center;
   padding: 3rem 1rem;
   color: var(--clr-text-secondary);
 }
 
-.hist-empty-icon {
+.st-empty-icon {
   font-size: 2.5rem;
   display: block;
   margin-bottom: 0.5rem;

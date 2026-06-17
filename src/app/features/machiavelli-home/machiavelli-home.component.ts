@@ -6,6 +6,7 @@ import {
   BOT_DIFFICULTIES,
   BOT_DIFFICULTY_LABELS,
 } from '../../core/constants/machiavelli.constants';
+import { AmbientMeshComponent } from '../../shared/components/ambient-mesh/ambient-mesh.component';
 
 interface DiffMeta {
   accent: string;
@@ -17,7 +18,7 @@ interface DiffMeta {
   selector: 'app-machiavelli-home',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, AmbientMeshComponent],
   templateUrl: './machiavelli-home.component.html',
   styleUrl: './machiavelli-home.component.css',
 })

@@ -31,7 +31,7 @@ describe('MachiavelliComponent', () => {
 
   const apiStub = {
     saveGame: () => of({}),
-    getRecord: () => of({ best_time_seconds: null }),
+    getRecords: () => of([]),
   };
 
   beforeEach(async () => {
