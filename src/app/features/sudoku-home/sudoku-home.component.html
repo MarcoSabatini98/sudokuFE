@@ -1,19 +1,37 @@
-<div class="home-container">
-  <h1 class="title">Sudoku</h1>
-  <p class="subtitle">Scegli la difficoltà per iniziare</p>
+<div class="sk-page">
+  <header class="sk-hero">
+    <span class="sk-eyebrow">Sudoku</span>
+    <h1 class="sk-title">Scegli la difficoltà</h1>
+    <p class="sk-sub">Quattro livelli, dal rilassato all'estremo.</p>
 
-  <div class="nav-links">
-    <a mat-button routerLink="/history">Cronologia</a>
-    <a mat-button routerLink="/records">Record</a>
-  </div>
+    <div class="sk-links">
+      <a class="sk-link" routerLink="/history">Cronologia</a>
+      <a class="sk-link" routerLink="/records">Record</a>
+    </div>
+  </header>
 
-  <div class="difficulty-list">
+  <div class="sk-grid">
     @for (diff of difficulties; track diff) {
-      <mat-card class="difficulty-card" (click)="startGame(diff)">
-        <mat-card-content class="card-content">
-          <div class="diff-label">{{ labels[diff] }}</div>
-        </mat-card-content>
-      </mat-card>
+      <button type="button" class="sk-card" [style.--accent]="meta[diff].accent" (click)="startGame(diff)">
+        <span class="sk-main">
+          <span class="sk-name">{{ labels[diff] }}</span>
+          <span class="sk-desc">{{ meta[diff].desc }}</span>
+        </span>
+
+        <span class="sk-side">
+          <span class="sk-level" aria-hidden="true">
+            @for (i of levels; track i) {
+              <span class="sk-dot" [class.on]="i <= meta[diff].level"></span>
+            }
+          </span>
+          <span class="sk-cta">
+            Gioca
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+      </button>
     }
   </div>
 </div>

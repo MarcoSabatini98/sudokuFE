@@ -1,58 +1,182 @@
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem 1rem;
-  gap: 1.25rem;
+.sk-page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem 3.5rem;
 }
 
-.title {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--clr-text-primary);
-  margin: 0;
-}
+/* ── Hero ─────────────────────────────────────────────── */
 
-.subtitle {
-  font-size: 1.1rem;
-  color: var(--clr-text-secondary);
-  margin: 0;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.difficulty-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 420px;
-}
-
-.difficulty-card {
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  width: 100%;
-}
-
-.difficulty-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px var(--clr-shadow);
-}
-
-.card-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem 1.25rem !important;
-}
-
-.diff-label {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--clr-text-primary);
+.sk-hero {
   text-align: center;
+  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+}
+
+.sk-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--clr-border-light);
+  border-radius: 1rem;
+  background: var(--clr-surface);
+}
+
+.sk-title {
+  margin: 0.9rem 0 0.4rem;
+  font-size: clamp(2rem, 5.5vw, 2.9rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.07;
+  color: var(--clr-text-primary);
+}
+
+.sk-sub {
+  margin: 0 0 1.1rem;
+  font-size: 1.02rem;
+  color: var(--clr-text-secondary);
+}
+
+.sk-links {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.sk-link {
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--clr-border-light);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--clr-text-secondary);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sk-link:hover {
+  background: var(--clr-surface-2);
+  color: var(--clr-text-primary);
+  border-color: var(--clr-border);
+}
+
+/* ── Card difficoltà ──────────────────────────────────── */
+
+.sk-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.sk-card {
+  --accent: var(--clr-selected);
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.35rem;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border-light);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px var(--clr-shadow);
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.sk-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.sk-card:hover,
+.sk-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--clr-border-light));
+  box-shadow:
+    0 14px 32px var(--clr-shadow),
+    0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  outline: none;
+}
+
+.sk-card:hover::after,
+.sk-card:focus-visible::after {
+  opacity: 1;
+}
+
+/* contenuto: testo a sinistra, livello + CTA a destra */
+.sk-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sk-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* indicatore di livello (pallini) */
+.sk-level {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.sk-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--clr-border-light);
+}
+
+.sk-dot.on {
+  background: var(--accent);
+}
+
+.sk-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--clr-text-primary);
+}
+
+.sk-desc {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--clr-text-secondary);
+}
+
+.sk-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.sk-cta .arrow {
+  width: 1.05rem;
+  height: 1.05rem;
+  transition: transform 0.18s ease;
+}
+
+.sk-card:hover .sk-cta .arrow,
+.sk-card:focus-visible .sk-cta .arrow {
+  transform: translateX(4px);
 }
