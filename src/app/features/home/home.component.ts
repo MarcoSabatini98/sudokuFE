@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { AmbientDotsComponent } from '../../shared/components/ambient-dots/ambient-dots.component';
+
 interface GameTile {
   key: 'sudoku' | 'machiavelli' | 'crossword';
   title: string;
@@ -14,6 +16,7 @@ interface GameTile {
   selector: 'app-home',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [AmbientDotsComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })

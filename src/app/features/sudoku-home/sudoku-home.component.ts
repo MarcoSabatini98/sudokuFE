@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
 import { DIFFICULTIES, DIFFICULTY_LABELS, type Difficulty } from '../../shared/models/game.model';
+import { AmbientMeshComponent } from '../../shared/components/ambient-mesh/ambient-mesh.component';
 
 interface DiffMeta {
   accent: string;
@@ -13,7 +14,7 @@ interface DiffMeta {
   selector: 'app-sudoku-home',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, AmbientMeshComponent],
   templateUrl: './sudoku-home.component.html',
   styleUrl: './sudoku-home.component.css',
 })

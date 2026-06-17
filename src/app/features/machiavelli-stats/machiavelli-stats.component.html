@@ -1,0 +1,112 @@
+<div class="st-page">
+  <app-ambient-mesh />
+  <header class="st-hero">
+    <div class="st-top">
+      <a class="st-link" routerLink="/machiavelli">← Macchiavelli</a>
+      <a class="st-link" routerLink="/">Giochi →</a>
+    </div>
+    <span class="st-eyebrow">Macchiavelli</span>
+    <h1 class="st-title">Record e cronologia partite</h1>
+    <p class="st-sub">I tuoi tempi di vittoria migliori e le ultime partite.</p>
+  </header>
+
+  <h2 class="st-section">Record per difficoltà bot</h2>
+  <div class="st-grid">
+    @for (diff of difficulties; track diff) {
+      <div class="st-card" [style.--accent]="accents[diff]">
+        <span class="st-name">{{ labels[diff] }}</span>
+        <span class="st-stat">
+          @if (recordMap().get(diff); as best) {
+            <span class="st-time">{{ formatTime(best) }}</span>
+            <span class="st-meta">miglior vittoria</span>
+          } @else {
+            <span class="st-empty">Nessuna vittoria</span>
+          }
+        </span>
+      </div>
+    }
+  </div>
+
+  <h2 class="st-section">Cronologia</h2>
+  <div class="st-filters">
+    <button
+      type="button"
+      class="filter-pill"
+      [class.active]="selectedDifficulty() === ''"
+      (click)="onDifficultyChange('')"
+    >
+      Tutte
+    </button>
+    @for (d of difficulties; track d) {
+      <button
+        type="button"
+        class="filter-pill"
+        [style.--accent]="accents[d]"
+        [class.active]="selectedDifficulty() === d"
+        (click)="onDifficultyChange(d)"
+      >
+        {{ getLabel(d) }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="st-loading">Caricamento…</p>
+  }
+
+  @if (!loading() && result(); as r) {
+    @if (r.data.length === 0) {
+      <div class="st-empty-box">
+        <span class="st-empty-icon">🃏</span>
+        <p>Nessuna partita registrata.</p>
+      </div>
+    } @else {
+      <div class="st-table">
+        <div class="st-row st-head">
+          <span>Data</span>
+          <span>Difficoltà</span>
+          <span>Esito</span>
+          <span>Durata</span>
+        </div>
+        @for (g of r.data; track g.id) {
+          <div class="st-row">
+            <span class="st-date">{{ formatDate(g.played_at) }}</span>
+            <span>
+              <span class="diff-badge" [style.--accent]="accents[g.bot_difficulty]">{{ getLabel(g.bot_difficulty) }}</span>
+            </span>
+            <span>
+              @if (g.won) {
+                <span class="status-pill ok">✓ Vinta</span>
+              } @else {
+                <span class="status-pill no">✗ Persa</span>
+              }
+            </span>
+            <span class="st-time-cell">⏱ {{ formatTime(g.duration_seconds) }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="st-pager">
+        <button
+          type="button"
+          class="pager-btn"
+          [disabled]="r.pagination.page <= 1"
+          (click)="loadHistory(r.pagination.page - 1)"
+        >
+          ←
+        </button>
+        <span class="pager-info">
+          Pagina {{ r.pagination.page }} di {{ r.pagination.totalPages }} · {{ r.pagination.total }} partite
+        </span>
+        <button
+          type="button"
+          class="pager-btn"
+          [disabled]="r.pagination.page >= r.pagination.totalPages"
+          (click)="loadHistory(r.pagination.page + 1)"
+        >
+          →
+        </button>
+      </div>
+    }
+  }
+</div>

@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { ApiResponse } from '../../../shared/models/api-response.model';
+import { ApiResponse, PaginatedData } from '../../../shared/models/api-response.model';
+import { toHttpParams } from '../../utils/http-params';
+import { BotDifficulty } from '../../constants/machiavelli.constants';
 import {
   MachiavelliGame,
   MachiavelliGameResult,
@@ -21,9 +23,17 @@ export class MachiavelliApiService {
       .pipe(map((res) => res.data));
   }
 
-  getRecord(): Observable<MachiavelliRecord> {
+  getHistory(
+    filters: { bot_difficulty?: BotDifficulty; page?: number; limit?: number } = {}
+  ): Observable<PaginatedData<MachiavelliGame>> {
     return this.http
-      .get<ApiResponse<MachiavelliRecord>>(`${this.API_URL}/records`)
+      .get<ApiResponse<PaginatedData<MachiavelliGame>>>(this.API_URL, { params: toHttpParams(filters) })
+      .pipe(map((res) => res.data));
+  }
+
+  getRecords(): Observable<MachiavelliRecord[]> {
+    return this.http
+      .get<ApiResponse<MachiavelliRecord[]>>(`${this.API_URL}/records`)
       .pipe(map((res) => res.data));
   }
 }

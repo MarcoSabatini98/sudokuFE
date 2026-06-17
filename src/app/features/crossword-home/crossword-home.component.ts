@@ -6,6 +6,7 @@ import {
   CROSSWORD_DIFFICULTIES,
   CROSSWORD_DIFFICULTY_LABELS,
 } from '../../shared/models/crossword.model';
+import { AmbientMeshComponent } from '../../shared/components/ambient-mesh/ambient-mesh.component';
 
 interface DiffMeta {
   accent: string;
@@ -17,7 +18,7 @@ interface DiffMeta {
   selector: 'app-crossword-home',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, AmbientMeshComponent],
   templateUrl: './crossword-home.component.html',
   styleUrl: './crossword-home.component.css',
 })

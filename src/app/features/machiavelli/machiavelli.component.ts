@@ -474,15 +474,20 @@ export class MachiavelliComponent {
     const duration = Math.max(1, Math.round((Date.now() - this.startTime) / 1000));
     const won = this.state().winner === 0;
 
-    this.api.saveGame({ won, duration_seconds: duration }).subscribe({
-      next: () => this.loadRecord(),
-      error: () => undefined,
-    });
+    this.api
+      .saveGame({ won, duration_seconds: duration, bot_difficulty: this.difficulty() })
+      .subscribe({
+        next: () => this.loadRecord(),
+        error: () => undefined,
+      });
   }
 
   private loadRecord(): void {
-    this.api.getRecord().subscribe({
-      next: (r) => this.bestTimeSeconds.set(r.best_time_seconds),
+    this.api.getRecords().subscribe({
+      next: (records) => {
+        const mine = records.find((r) => r.bot_difficulty === this.difficulty());
+        this.bestTimeSeconds.set(mine ? mine.best_time_seconds : null);
+      },
       error: () => undefined,
     });
   }

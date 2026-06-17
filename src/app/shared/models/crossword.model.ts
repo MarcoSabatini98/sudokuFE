@@ -40,6 +40,11 @@ export interface CrosswordGameResult {
   time_seconds: number;
 }
 
+export interface CrosswordGame extends CrosswordGameResult {
+  id: number;
+  played_at: string;
+}
+
 export interface CrosswordRecord {
   difficulty: CrosswordDifficulty;
   best_time_seconds: number;

@@ -1,6 +1,9 @@
+import { BotDifficulty } from '../../core/constants/machiavelli.constants';
+
 export interface MachiavelliGameResult {
   won: boolean;
   duration_seconds: number;
+  bot_difficulty: BotDifficulty;
 }
 
 export interface MachiavelliGame extends MachiavelliGameResult {
@@ -8,7 +11,8 @@ export interface MachiavelliGame extends MachiavelliGameResult {
   played_at: string;
 }
 
+/** Miglior tempo di vittoria per una difficoltà bot. */
 export interface MachiavelliRecord {
-  best_time_seconds: number | null;
-  best_game: MachiavelliGame | null;
+  bot_difficulty: BotDifficulty;
+  best_time_seconds: number;
 }

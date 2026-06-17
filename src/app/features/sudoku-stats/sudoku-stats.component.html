@@ -1,14 +1,34 @@
-<div class="hist-page">
-  <header class="hist-hero">
-    <div class="hist-top">
-      <a class="hist-link" routerLink="/">← Home</a>
-      <a class="hist-link" routerLink="/records">Record →</a>
+<div class="st-page">
+  <app-ambient-mesh />
+  <header class="st-hero">
+    <div class="st-top">
+      <a class="st-link" routerLink="/sudoku">← Sudoku</a>
+      <a class="st-link" routerLink="/history-and-records">Giochi →</a>
     </div>
-    <h1 class="hist-title">Cronologia partite</h1>
-    <p class="hist-sub">Le tue ultime partite di Sudoku.</p>
+    <span class="st-eyebrow">Sudoku</span>
+    <h1 class="st-title">Record e cronologia partite</h1>
+    <p class="st-sub">I tuoi tempi migliori e le ultime partite per difficoltà.</p>
   </header>
 
-  <div class="hist-filters">
+  <h2 class="st-section">Record per difficoltà</h2>
+  <div class="st-grid">
+    @for (diff of difficulties; track diff) {
+      <div class="st-card" [style.--accent]="accents[diff]">
+        <span class="st-name">{{ labels[diff] }}</span>
+        <span class="st-stat">
+          @if (recordMap().get(diff); as rec) {
+            <span class="st-time">{{ formatTime(rec.best_time_seconds) }}</span>
+            <span class="st-meta">{{ formatDate(rec.updated_at) }}</span>
+          } @else {
+            <span class="st-empty">Nessun record</span>
+          }
+        </span>
+      </div>
+    }
+  </div>
+
+  <h2 class="st-section">Cronologia</h2>
+  <div class="st-filters">
     <button
       type="button"
       class="filter-pill"
@@ -31,30 +51,29 @@
   </div>
 
   @if (loading()) {
-    <p class="hist-loading">Caricamento…</p>
+    <p class="st-loading">Caricamento…</p>
   }
 
   @if (!loading() && result(); as r) {
     @if (r.data.length === 0) {
-      <div class="hist-empty">
-        <span class="hist-empty-icon">📋</span>
+      <div class="st-empty-box">
+        <span class="st-empty-icon">📋</span>
         <p>Nessuna partita registrata.</p>
       </div>
     } @else {
-      <div class="hist-table">
-        <div class="hist-row hist-head">
+      <div class="st-table">
+        <div class="st-row st-head">
           <span>Data</span>
           <span>Difficoltà</span>
-          <span>Tempo</span>
           <span>Esito</span>
+          <span>Tempo</span>
         </div>
         @for (g of r.data; track g.id) {
-          <div class="hist-row">
-            <span class="hist-date">{{ formatDate(g.played_at) }}</span>
+          <div class="st-row">
+            <span class="st-date">{{ formatDate(g.played_at) }}</span>
             <span>
               <span class="diff-badge" [style.--accent]="accents[g.difficulty]">{{ getLabel(g.difficulty) }}</span>
             </span>
-            <span class="hist-time">⏱ {{ formatTime(g.time_seconds) }}</span>
             <span>
               @if (g.completed) {
                 <span class="status-pill ok">✓ Completata</span>
@@ -62,16 +81,17 @@
                 <span class="status-pill no">✗ Abbandonata</span>
               }
             </span>
+            <span class="st-time-cell">⏱ {{ formatTime(g.time_seconds) }}</span>
           </div>
         }
       </div>
 
-      <div class="hist-pager">
+      <div class="st-pager">
         <button
           type="button"
           class="pager-btn"
           [disabled]="r.pagination.page <= 1"
-          (click)="load(r.pagination.page - 1)"
+          (click)="loadHistory(r.pagination.page - 1)"
         >
           ←
         </button>
@@ -82,7 +102,7 @@
           type="button"
           class="pager-btn"
           [disabled]="r.pagination.page >= r.pagination.totalPages"
-          (click)="load(r.pagination.page + 1)"
+          (click)="loadHistory(r.pagination.page + 1)"
         >
           →
         </button>

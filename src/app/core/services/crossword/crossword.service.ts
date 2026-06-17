@@ -3,10 +3,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { ApiResponse } from '../../../shared/models/api-response.model';
+import { ApiResponse, PaginatedData } from '../../../shared/models/api-response.model';
+import { toHttpParams } from '../../utils/http-params';
 import {
   Crossword,
   CrosswordDifficulty,
+  CrosswordGame,
   CrosswordGameResult,
   CrosswordRecord,
 } from '../../../shared/models/crossword.model';
@@ -32,6 +34,16 @@ export class CrosswordService {
   getRecords(): Observable<CrosswordRecord[]> {
     return this.http
       .get<ApiResponse<CrosswordRecord[]>>(`${this.API_URL}/records`)
+      .pipe(map((res) => res.data));
+  }
+
+  getHistory(
+    filters: { difficulty?: CrosswordDifficulty; page?: number; limit?: number } = {}
+  ): Observable<PaginatedData<CrosswordGame>> {
+    return this.http
+      .get<ApiResponse<PaginatedData<CrosswordGame>>>(`${this.API_URL}/games`, {
+        params: toHttpParams(filters),
+      })
       .pipe(map((res) => res.data));
   }
 }
