@@ -1,20 +1,19 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 
 interface GameTile {
   key: 'sudoku' | 'machiavelli' | 'crossword';
   title: string;
   description: string;
   route: string;
-  badge?: string;
+  /** Colore d'accento della card (usato come CSS var --accent). */
+  accent: string;
 }
 
 @Component({
   selector: 'app-home',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatCardModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
@@ -27,18 +26,21 @@ export class HomeComponent {
       title: 'Sudoku',
       description: 'Quattro difficoltà, timer, note e record.',
       route: '/sudoku',
+      accent: '#3b82f6',
     },
     {
       key: 'machiavelli',
       title: 'Macchiavelli',
       description: 'Gioco di carte: tu contro 3 bot.',
       route: '/machiavelli',
+      accent: '#10b981',
     },
     {
       key: 'crossword',
       title: 'Cruciverba',
       description: 'Schemi a parole incrociate con definizioni.',
       route: '/crossword',
+      accent: '#8b5cf6',
     },
   ];
 

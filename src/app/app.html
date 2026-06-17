@@ -1,15 +1,29 @@
 <mat-toolbar class="app-toolbar">
-  <a routerLink="/" class="brand">
-    <img src="sudoku-icon.png" alt="Sudoku" class="brand-logo">
-    <span class="brand-text">Sudoku</span>
-  </a>
-  <span class="spacer"></span>
-  <a mat-button routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-  <a mat-button routerLink="/history" routerLinkActive="active-link">Cronologia</a>
-  <a mat-button routerLink="/records" routerLinkActive="active-link">Record</a>
-  <button mat-button class="theme-btn" (click)="themeService.toggle()" [title]="themeService.darkMode() ? 'Passa al tema chiaro' : 'Passa al tema scuro'">
+  <button
+    type="button"
+    class="theme-btn"
+    (click)="themeService.toggle()"
+    [title]="themeService.darkMode() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+  >
     {{ themeService.darkMode() ? '☀️' : '🌙' }}
   </button>
+
+  <a routerLink="/" class="brand">
+    <img src="sudoku-icon.png" alt="" class="brand-logo" />
+    <span class="brand-text">Sudoku</span>
+  </a>
+
+  <nav class="nav-links">
+    <a
+      class="nav-link"
+      routerLink="/"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+      >Home</a
+    >
+    <a class="nav-link" routerLink="/history" routerLinkActive="active-link">Cronologia</a>
+    <a class="nav-link" routerLink="/records" routerLinkActive="active-link">Record</a>
+  </nav>
 </mat-toolbar>
 
 <main class="app-content">

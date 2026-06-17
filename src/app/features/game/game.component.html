@@ -1,7 +1,14 @@
 <!-- fallow-ignore-file complexity -->
 <div class="game-container">
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-grid"></div>
+    <span class="ambient-blob b1"></span>
+    <span class="ambient-blob b2"></span>
+    <span class="ambient-blob b3"></span>
+  </div>
+
   <div class="game-header">
-    <a mat-button routerLink="/">← Home</a>
+    <a mat-button routerLink="/sudoku">← Seleziona difficoltà</a>
     <h2>{{ labels[difficulty] }}</h2>
     <div class="timer-wrap">
       <app-timer [running]="timerRunning()" (tick)="onTimerTick($event)" />
@@ -17,16 +24,18 @@
 
   @if (!loading() && puzzle(); as p) {
     <div class="board-area">
-      <app-sudoku-board
-        [puzzle]="p.puzzle"
-        [solution]="p.solution"
-        [disabled]="boardDisabled()"
-        [paused]="paused()"
-        [notesEnabled]="notesUnlocked()"
-        (boardComplete)="onBoardComplete()"
-        (firstMove)="onFirstMove()"
-        (errorOccurred)="onErrorOccurred()"
-      />
+      <div class="board-halo">
+        <app-sudoku-board
+          [puzzle]="p.puzzle"
+          [solution]="p.solution"
+          [disabled]="boardDisabled()"
+          [paused]="paused()"
+          [notesEnabled]="notesUnlocked()"
+          (boardComplete)="onBoardComplete()"
+          (firstMove)="onFirstMove()"
+          (errorOccurred)="onErrorOccurred()"
+        />
+      </div>
       <div class="side-panel">
         <div class="error-counter">
           <span class="error-label">Errori</span>

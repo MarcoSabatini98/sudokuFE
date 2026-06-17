@@ -31,12 +31,11 @@ describe('SudokuHomeComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/game'], { queryParams: { difficulty: 'easy' } });
   });
 
-  it('should show cronologia and record nav links', async () => {
+  it('should show a link back to the games home', async () => {
     await render(SudokuHomeComponent, {
       providers: [provideRouter([]), provideAnimationsAsync()],
     });
 
-    expect(screen.getByText('Cronologia')).toBeTruthy();
-    expect(screen.getByText('Record')).toBeTruthy();
+    expect(screen.getByText('← Giochi')).toBeTruthy();
   });
 });

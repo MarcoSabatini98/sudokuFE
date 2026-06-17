@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/angular';
-import { provideRouter } from '@angular/router';
+import { provideRouter, ActivatedRoute } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EMPTY, of } from 'rxjs';
@@ -151,21 +151,18 @@ describe('CrosswordComponent', () => {
     expect(comp.solved()).toBe(true);
   });
 
-  it('cambiare difficoltà la imposta e rigenera lo schema', async () => {
+  it('legge la difficoltà dal queryParam e genera quello schema', async () => {
     const generateSpy = vi.fn(() => of(mockCrossword()));
     const { fixture } = await render(CrosswordComponent, {
       providers: [
         provideRouter([]),
         provideNoopAnimations(),
         { provide: CrosswordService, useValue: { generate: generateSpy } },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: { get: () => 'hard' } } } },
       ],
     });
-    const comp = fixture.componentInstance;
-    generateSpy.mockClear(); // ignora la generazione iniziale
 
-    comp.setDifficulty('hard');
-
-    expect(comp.difficulty()).toBe('hard');
+    expect(fixture.componentInstance.difficulty()).toBe('hard');
     expect(generateSpy).toHaveBeenCalledWith('hard');
   });
 });

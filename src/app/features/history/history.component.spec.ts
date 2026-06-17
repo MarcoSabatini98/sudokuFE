@@ -34,7 +34,7 @@ describe('HistoryComponent', () => {
     });
 
     expect(screen.getByText('Cronologia partite')).toBeTruthy();
-    expect(screen.getByText('Facile')).toBeTruthy();
+    expect(screen.getAllByText('Facile').length).toBeGreaterThan(0); // pill filtro + badge riga
     expect(screen.getByText(/02:00/)).toBeTruthy();
   });
 

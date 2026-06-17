@@ -2,22 +2,8 @@
   <header class="cw-header">
     <h1 class="cw-title">Cruciverba</h1>
     <span class="cw-timer">{{ formatTime(elapsed()) }}</span>
-    <a mat-button routerLink="/">← Giochi</a>
+    <a mat-button routerLink="/crossword">← Seleziona difficoltà</a>
   </header>
-
-  <div class="cw-difficulty">
-    <span class="cw-diff-label">Difficoltà:</span>
-    @for (level of difficulties; track level) {
-      <button
-        mat-stroked-button
-        class="cw-diff-btn"
-        [class.active]="difficulty() === level"
-        (click)="setDifficulty(level)"
-      >
-        {{ difficultyLabels[level] }}
-      </button>
-    }
-  </div>
 
   @if (loading()) {
     <p class="cw-loading">Generazione schema…</p>

@@ -1,8 +1,8 @@
 <div class="sk-page">
   <header class="sk-hero">
-    <span class="sk-eyebrow">Sudoku</span>
+    <span class="sk-eyebrow">Cruciverba</span>
     <h1 class="sk-title">Scegli la difficoltà</h1>
-    <p class="sk-sub">Quattro livelli, dal rilassato all'estremo.</p>
+    <p class="sk-sub">Tre livelli: griglia e vocabolario crescenti.</p>
 
     <div class="sk-links">
       <a class="sk-link" routerLink="/">← Giochi</a>
@@ -11,7 +11,7 @@
 
   <div class="sk-grid">
     @for (diff of difficulties; track diff) {
-      <button type="button" class="sk-card" [style.--accent]="meta[diff].accent" (click)="startGame(diff)">
+      <button type="button" class="sk-card" [style.--accent]="meta[diff].accent" (click)="start(diff)">
         <span class="sk-main">
           <span class="sk-name">{{ labels[diff] }}</span>
           <span class="sk-desc">{{ meta[diff].desc }}</span>
