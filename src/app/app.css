@@ -2,7 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  gap: 0.4rem;
+  /* 3 colonne uguali ai lati → toggle a sinistra, brand al centro, link a destra */
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
   /* frosted glass: sfondo translucido + blur, bordo sottile */
   background: color-mix(in srgb, var(--clr-navbar-bg) 82%, transparent) !important;
   -webkit-backdrop-filter: blur(12px);
@@ -13,10 +17,11 @@
 }
 
 .brand {
+  justify-self: center;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  font-size: 1.15rem;
+  gap: 0.6rem;
+  font-size: 1.45rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--clr-text-primary);
@@ -24,8 +29,8 @@
 }
 
 .brand-logo {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
@@ -33,17 +38,13 @@
   line-height: 1;
 }
 
-.spacer {
-  flex: 1;
-}
-
 /* ── Link di navigazione (pill su hover/attivo) ─────────── */
 
 .nav-links {
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  margin-right: 0.5rem;
 }
 
 .nav-link {
@@ -75,6 +76,7 @@
 /* ── Toggle tema (icon button tondo) ────────────────────── */
 
 .theme-btn {
+  justify-self: start;
   display: inline-grid;
   place-items: center;
   width: 38px;

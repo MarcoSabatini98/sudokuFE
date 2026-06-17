@@ -1,10 +1,17 @@
 <mat-toolbar class="app-toolbar">
+  <button
+    type="button"
+    class="theme-btn"
+    (click)="themeService.toggle()"
+    [title]="themeService.darkMode() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
+  >
+    {{ themeService.darkMode() ? '☀️' : '🌙' }}
+  </button>
+
   <a routerLink="/" class="brand">
     <img src="sudoku-icon.png" alt="" class="brand-logo" />
     <span class="brand-text">Sudoku</span>
   </a>
-
-  <span class="spacer"></span>
 
   <nav class="nav-links">
     <a
@@ -17,15 +24,6 @@
     <a class="nav-link" routerLink="/history" routerLinkActive="active-link">Cronologia</a>
     <a class="nav-link" routerLink="/records" routerLinkActive="active-link">Record</a>
   </nav>
-
-  <button
-    type="button"
-    class="theme-btn"
-    (click)="themeService.toggle()"
-    [title]="themeService.darkMode() ? 'Passa al tema chiaro' : 'Passa al tema scuro'"
-  >
-    {{ themeService.darkMode() ? '☀️' : '🌙' }}
-  </button>
 </mat-toolbar>
 
 <main class="app-content">
