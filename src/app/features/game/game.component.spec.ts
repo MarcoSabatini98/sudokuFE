@@ -42,7 +42,7 @@ describe('GameComponent', () => {
     mockSudokuService.generate.mockReturnValue(of(MOCK_PUZZLE));
   });
 
-  it('should show loading spinner on init', async () => {
+  it('should render the difficulty header on init', async () => {
     await render(GameComponent, {
       providers: [
         provideRouter([]),
@@ -52,7 +52,7 @@ describe('GameComponent', () => {
       ],
     });
 
-    expect(screen.getByText('Nuovo Puzzle')).toBeTruthy();
+    expect(screen.getByText('Facile')).toBeTruthy();
   });
 
   it('should render board after puzzle loads', async () => {

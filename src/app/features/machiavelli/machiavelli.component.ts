@@ -399,6 +399,15 @@ export class MachiavelliComponent {
   }
 
   /** Ordina la mano: 1° click per seme+rango, 2° click solo per rango, poi alterna. */
+  /** Riflettore che segue il cursore sul feltro: scrive le CSS var direttamente
+   *  sull'elemento, senza signal/CD ad ogni mousemove. */
+  onFeltMove(e: MouseEvent): void {
+    const el = e.currentTarget as HTMLElement;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--spot-x', `${e.clientX - r.left}px`);
+    el.style.setProperty('--spot-y', `${e.clientY - r.top}px`);
+  }
+
   sortHand(): void {
     const mode = this.handSortMode();
     const cards = [...this.workingHand()];
