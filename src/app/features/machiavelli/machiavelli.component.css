@@ -95,22 +95,9 @@
   }
 }
 
-/* Difficoltà */
-.difficulty-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.difficulty-bar .diff-label {
-  font-weight: 600;
-  opacity: 0.8;
-}
-
-.diff-btn.active {
-  background: #2b4a8b;
-  color: #fff;
+/* Breadcrumb selezione difficoltà */
+.mac-breadcrumb {
+  margin-bottom: 0.25rem;
 }
 
 /* Avversari */

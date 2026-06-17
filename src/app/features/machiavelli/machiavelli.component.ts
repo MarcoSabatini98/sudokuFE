@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { CdkDrag, CdkDragDrop, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Card, Meld, Rank, Suit } from '../../shared/models/card.model';
 import { GameState } from '../../shared/models/machiavelli.model';
@@ -20,7 +21,6 @@ import { MachiavelliApiService } from '../../core/services/machiavelli/machiavel
 import {
   BotDifficulty,
   BOT_DIFFICULTIES,
-  BOT_DIFFICULTY_LABELS,
   BOT_THINK_DELAY_MS,
   BOT_REVEAL_PAUSE_MS,
   HAND_SORT_SUIT_ORDER,
@@ -53,6 +53,7 @@ function newMeldId(): string {
     CdkDrag,
     MatButtonModule,
     MatSnackBarModule,
+    RouterLink,
     PlayingCardComponent,
   ],
   templateUrl: './machiavelli.component.html',
@@ -63,6 +64,7 @@ export class MachiavelliComponent {
   private readonly ai = inject(MachiavelliAiService);
   private readonly api = inject(MachiavelliApiService);
   private readonly snack = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
 
   readonly NEW_MELD_ID = NEW_MELD_ID;
   readonly HAND_ID = HAND_ID;
@@ -79,10 +81,8 @@ export class MachiavelliComponent {
   readonly bestTimeSeconds = signal<number | null>(null);
   /** Prossimo criterio applicato dal pulsante "Ordina mano". */
   readonly handSortMode = signal<'suit' | 'rank'>('suit');
-  /** Livello di difficoltà dei bot. */
+  /** Livello di difficoltà dei bot (dalla pagina di selezione, via queryParam). */
   readonly difficulty = signal<BotDifficulty>('hard');
-  readonly difficulties = BOT_DIFFICULTIES;
-  readonly difficultyLabels = BOT_DIFFICULTY_LABELS;
 
   private startTime = Date.now();
   private resultSaved = false;
@@ -116,6 +116,10 @@ export class MachiavelliComponent {
   readonly isWon = computed(() => this.state().phase === 'won');
 
   constructor() {
+    const param = this.route.snapshot.queryParamMap.get('difficulty');
+    if (param && (BOT_DIFFICULTIES as string[]).includes(param)) {
+      this.difficulty.set(param as BotDifficulty);
+    }
     // All'apertura la partita è già pronta e tocca all'umano: board in attesa.
     this.initGame();
   }
@@ -415,12 +419,6 @@ export class MachiavelliComponent {
     if (a.isJoker || b.isJoker) return Number(a.isJoker) - Number(b.isJoker); // jolly in coda
     return (a.rank as number) - (b.rank as number);
   };
-
-  setDifficulty(level: BotDifficulty): void {
-    if (level === this.difficulty()) return;
-    this.difficulty.set(level);
-    this.newGame();
-  }
 
   newGame(): void {
     this.initGame();

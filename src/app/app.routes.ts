@@ -14,10 +14,24 @@ export const routes: Routes = [
   {
     path: 'machiavelli',
     loadComponent: () =>
+      import('./features/machiavelli-home/machiavelli-home.component').then(
+        (m) => m.MachiavelliHomeComponent
+      ),
+  },
+  {
+    path: 'machiavelli/game',
+    loadComponent: () =>
       import('./features/machiavelli/machiavelli.component').then((m) => m.MachiavelliComponent),
   },
   {
     path: 'crossword',
+    loadComponent: () =>
+      import('./features/crossword-home/crossword-home.component').then(
+        (m) => m.CrosswordHomeComponent
+      ),
+  },
+  {
+    path: 'crossword/game',
     loadComponent: () =>
       import('./features/crossword/crossword.component').then((m) => m.CrosswordComponent),
   },

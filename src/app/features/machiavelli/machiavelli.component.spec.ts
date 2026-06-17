@@ -1,4 +1,5 @@
 import { render } from '@testing-library/angular';
+import { provideRouter } from '@angular/router';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
@@ -35,7 +36,11 @@ describe('MachiavelliComponent', () => {
 
   beforeEach(async () => {
     const r = await render(MachiavelliComponent, {
-      providers: [provideNoopAnimations(), { provide: MachiavelliApiService, useValue: apiStub }],
+      providers: [
+        provideRouter([]),
+        provideNoopAnimations(),
+        { provide: MachiavelliApiService, useValue: apiStub },
+      ],
     });
     comp = r.fixture.componentInstance;
   });

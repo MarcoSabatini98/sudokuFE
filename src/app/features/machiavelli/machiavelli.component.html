@@ -20,19 +20,9 @@
   </aside>
 
   <div class="mac-container">
-  <!-- Difficoltà bot -->
-  <div class="difficulty-bar">
-    <span class="diff-label">Difficoltà bot:</span>
-    @for (level of difficulties; track level) {
-      <button
-        mat-stroked-button
-        class="diff-btn"
-        [class.active]="difficulty() === level"
-        (click)="setDifficulty(level)"
-      >
-        {{ difficultyLabels[level] }}
-      </button>
-    }
+  <!-- Breadcrumb: torna alla scelta della difficoltà dei bot -->
+  <div class="mac-breadcrumb">
+    <a mat-button routerLink="/machiavelli">← Seleziona difficoltà Bot</a>
   </div>
 
   <!-- Avversari -->

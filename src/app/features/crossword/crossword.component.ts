@@ -7,7 +7,7 @@ import {
   OnDestroy,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -41,8 +41,8 @@ const ACCENTS: Record<string, string> = {
 export class CrosswordComponent implements OnDestroy {
   private readonly api = inject(CrosswordService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly route = inject(ActivatedRoute);
 
-  readonly difficulties = CROSSWORD_DIFFICULTIES;
   readonly difficultyLabels = CROSSWORD_DIFFICULTY_LABELS;
   readonly difficulty = signal<CrosswordDifficulty>('medium');
 
@@ -79,6 +79,10 @@ export class CrosswordComponent implements OnDestroy {
   });
 
   constructor() {
+    const param = this.route.snapshot.queryParamMap.get('difficulty');
+    if (param && (CROSSWORD_DIFFICULTIES as string[]).includes(param)) {
+      this.difficulty.set(param as CrosswordDifficulty);
+    }
     this.newPuzzle();
     // Salva il completamento una sola volta, quando la griglia diventa corretta.
     effect(() => {
@@ -102,11 +106,6 @@ export class CrosswordComponent implements OnDestroy {
     });
   }
 
-  setDifficulty(level: CrosswordDifficulty): void {
-    if (level === this.difficulty()) return;
-    this.difficulty.set(level);
-    this.newPuzzle();
-  }
 
   private loadCrossword(cw: Crossword): void {
     this.crossword.set(cw);
