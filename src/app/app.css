@@ -2,7 +2,11 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--clr-navbar-bg) !important;
+  gap: 0.4rem;
+  /* frosted glass: sfondo translucido + blur, bordo sottile */
+  background: color-mix(in srgb, var(--clr-navbar-bg) 82%, transparent) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   color: var(--clr-text-primary) !important;
   border-bottom: 1px solid var(--clr-border-light);
   transition: background 0.2s, color 0.2s;
@@ -11,16 +15,17 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.2rem;
+  gap: 0.55rem;
+  font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--clr-text-primary);
   text-decoration: none;
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 }
 
@@ -32,14 +37,66 @@
   flex: 1;
 }
 
-.theme-btn {
-  font-size: 1.1rem;
-  min-width: 40px;
+/* ── Link di navigazione (pill su hover/attivo) ─────────── */
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: 0.5rem;
 }
 
-.active-link {
-  background: rgba(25, 118, 210, 0.12);
-  border-radius: 4px;
+.nav-link {
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.6rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--clr-text-secondary);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+  background: var(--clr-surface-2);
+  color: var(--clr-text-primary);
+}
+
+.nav-link.active-link {
+  background: color-mix(in srgb, var(--clr-selected) 14%, transparent);
+  color: var(--clr-selected);
+  font-weight: 600;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--clr-selected) 50%, transparent);
+  outline-offset: 1px;
+}
+
+/* ── Toggle tema (icon button tondo) ────────────────────── */
+
+.theme-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--clr-border-light);
+  border-radius: 50%;
+  background: var(--clr-surface);
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.theme-btn:hover {
+  background: var(--clr-surface-2);
+  border-color: var(--clr-border);
+  transform: translateY(-1px);
+}
+
+.theme-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--clr-selected) 50%, transparent);
+  outline-offset: 1px;
 }
 
 .app-content {

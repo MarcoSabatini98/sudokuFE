@@ -1,75 +1,162 @@
-.hub-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem 1rem;
-  gap: 1.25rem;
+.hub {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1.25rem 3.5rem;
 }
 
-.title {
-  font-size: 3rem;
+/* ── Hero ─────────────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  text-align: center;
+  margin-bottom: clamp(2rem, 5vw, 3.25rem);
+}
+
+/* glow soffuso dietro al titolo (tenue, theme-aware) */
+.hero::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: min(34rem, 90%);
+  height: 14rem;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle at 32% 50%, rgba(59, 130, 246, 0.28), transparent 60%),
+    radial-gradient(circle at 68% 50%, rgba(139, 92, 246, 0.24), transparent 62%);
+  filter: blur(46px);
+  opacity: 0.7;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 0.72rem;
   font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--clr-border-light);
+  border-radius: 1rem;
+  background: var(--clr-surface);
+}
+
+.hero-title {
+  margin: 0.9rem 0 0.4rem;
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
   color: var(--clr-text-primary);
-  margin: 0;
 }
 
-.subtitle {
-  font-size: 1.1rem;
+.hero-sub {
+  margin: 0;
+  font-size: 1.05rem;
   color: var(--clr-text-secondary);
-  margin: 0;
 }
 
-.game-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+/* ── Griglia card ─────────────────────────────────────── */
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1.25rem;
-  width: 100%;
-  max-width: 720px;
-  margin-top: 1rem;
 }
 
 .game-card {
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  width: 100%;
-  max-width: 320px;
-}
-
-.game-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px var(--clr-shadow);
-}
-
-.card-content {
+  --accent: var(--clr-selected);
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 2rem 1.25rem !important;
-  text-align: center;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-height: 13rem;
+  padding: 1.5rem;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border-light);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px var(--clr-shadow);
+  overflow: hidden; /* ritaglia la riga d'accento agli angoli arrotondati */
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+/* sottile riga d'accento in alto, rivelata all'hover */
+.game-card::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: 1rem 1rem 0 0;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.game-card:hover,
+.game-card:focus-visible {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--clr-border-light));
+  box-shadow:
+    0 14px 32px var(--clr-shadow),
+    0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent);
+  outline: none;
+}
+
+.game-card:hover::after,
+.game-card:focus-visible::after {
+  opacity: 1;
+}
+
+.game-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.85rem;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.game-icon svg {
+  width: 1.55rem;
+  height: 1.55rem;
 }
 
 .game-title {
-  font-size: 1.6rem;
+  font-size: 1.3rem;
   font-weight: 700;
   color: var(--clr-text-primary);
 }
 
 .game-desc {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
   color: var(--clr-text-secondary);
 }
 
-.badge {
-  margin-top: 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.2rem 0.6rem;
-  border-radius: 1rem;
-  background: #ffb300;
-  color: #1a1a1a;
+.game-cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.game-cta .arrow {
+  width: 1.05rem;
+  height: 1.05rem;
+  transition: transform 0.18s ease;
+}
+
+.game-card:hover .game-cta .arrow,
+.game-card:focus-visible .game-cta .arrow {
+  transform: translateX(4px);
 }

@@ -1,18 +1,47 @@
-<div class="hub-container">
-  <h1 class="title">Giochi</h1>
-  <p class="subtitle">Scegli cosa giocare</p>
+<div class="hub">
+  <header class="hero">
+    <span class="hero-eyebrow">Raccolta</span>
+    <h1 class="hero-title">Giochi</h1>
+    <p class="hero-sub">Scegli cosa giocare oggi.</p>
+  </header>
 
-  <div class="game-list">
+  <div class="game-grid">
     @for (game of games; track game.key) {
-      <mat-card class="game-card" (click)="open(game)">
-        <mat-card-content class="card-content">
-          <div class="game-title">{{ game.title }}</div>
-          <div class="game-desc">{{ game.description }}</div>
-          @if (game.badge) {
-            <span class="badge">{{ game.badge }}</span>
+      <button type="button" class="game-card" [style.--accent]="game.accent" (click)="open(game)">
+        <span class="game-icon">
+          @switch (game.key) {
+            @case ('sudoku') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
+              </svg>
+            }
+            @case ('machiavelli') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="6" width="12" height="15" rx="2" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-2" />
+              </svg>
+            }
+            @case ('crossword') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
+                <rect x="15" y="9" width="6" height="6" fill="currentColor" stroke="none" />
+              </svg>
+            }
           }
-        </mat-card-content>
-      </mat-card>
+        </span>
+
+        <span class="game-title">{{ game.title }}</span>
+        <span class="game-desc">{{ game.description }}</span>
+
+        <span class="game-cta">
+          Gioca
+          <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </span>
+      </button>
     }
   </div>
 </div>
