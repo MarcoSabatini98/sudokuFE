@@ -45,35 +45,12 @@ if (-not (Test-Path "node_modules") -or $fePkgBefore -ne $fePkgAfter) {
 }
 Pop-Location
 
-# Backend: applica migrations e avvia (pull gia' fatto sopra)
+# Backend: applica solo le migrazioni pending, poi avvia (pull gia' fatto sopra)
 $beCmd = 'title Sudoku-BE && cd /d "' + $BE_PATH + '" && npx sequelize-cli db:migrate && npm run dev'
 Start-Process "cmd.exe" -ArgumentList "/k", $beCmd -WindowStyle Minimized
 
-# Frontend: avvia direttamente (pull + install gia' fatto sopra)
-$feCmd = 'title Sudoku-FE && cd /d "' + $FE_PATH + '" && npx ng serve --open=false'
+# Frontend: avvia e apre il browser quando Angular e' pronto (pull + install gia' fatto sopra)
+$feCmd = 'title Sudoku-FE && cd /d "' + $FE_PATH + '" && npx ng serve --open'
 Start-Process "cmd.exe" -ArgumentList "/k", $feCmd -WindowStyle Minimized
 
-# Poll until Angular is ready (max 120s)
-Write-Host "Avvio server..." -ForegroundColor Blue
-$timeout = 120
-$elapsed = 0
-$ready   = $false
-
-while ($elapsed -lt $timeout) {
-    Start-Sleep -Seconds 3
-    $elapsed += 3
-    try {
-        $null = Invoke-WebRequest -Uri $URL -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop
-        $ready = $true
-        break
-    } catch {}
-    Write-Host "  attesa... ($elapsed s)" -ForegroundColor DarkGray
-}
-
-if ($ready) {
-    Write-Host "Pronto! Apertura browser..." -ForegroundColor Green
-    Start-Process $URL
-} else {
-    Write-Host "Timeout: il frontend non e' partito in $timeout s." -ForegroundColor Red
-    Write-Host "Controlla le finestre Sudoku-BE e Sudoku-FE."
-}
+Write-Host "BE e FE in avvio. Il browser si aprira' automaticamente." -ForegroundColor Green
