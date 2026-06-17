@@ -8,9 +8,9 @@
   </div>
 
   <div class="game-header">
-    <a mat-button routerLink="/sudoku">← Seleziona difficoltà</a>
-    <h2>{{ labels[difficulty] }}</h2>
-    <div class="timer-wrap">
+    <a mat-button class="header-back" routerLink="/sudoku">← Seleziona difficoltà</a>
+    <h2 class="header-title">{{ labels[difficulty] }}</h2>
+    <div class="header-timer">
       <app-timer [running]="timerRunning()" (tick)="onTimerTick($event)" />
     </div>
   </div>
@@ -98,12 +98,4 @@
       🎉 Puzzle completato in {{ formatTime(elapsedSeconds()) }}!
     </div>
   }
-
-  <div class="game-actions">
-    <button mat-raised-button color="primary" (click)="newGame()" [disabled]="loading()">
-      Nuovo Puzzle
-    </button>
-    <a mat-button routerLink="/records">Record</a>
-    <a mat-button routerLink="/history">Cronologia</a>
-  </div>
 </div>

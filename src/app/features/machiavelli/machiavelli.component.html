@@ -1,23 +1,10 @@
 <div class="mac-layout">
-  <!-- Log mosse -->
-  <aside class="game-log">
-    <h3 class="log-title">Log partita</h3>
-    @if (gameLog().length === 0) {
-      <p class="log-empty">Le mosse appariranno qui.</p>
-    }
-    <ul class="log-list">
-      @for (entry of gameLog(); track entry.id) {
-        <li
-          class="log-entry"
-          [class.log-bot]="entry.who === 'bot'"
-          [class.log-human]="entry.who === 'human'"
-          [class.log-system]="entry.who === 'system'"
-        >
-          {{ entry.text }}
-        </li>
-      }
-    </ul>
-  </aside>
+  <!-- Sfondo: tavolo da gioco sotto un riflettore (lampada + vignetta + grana) -->
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-lamp"></div>
+    <div class="ambient-vignette"></div>
+    <div class="ambient-grain"></div>
+  </div>
 
   <div class="mac-container">
   <!-- Breadcrumb: torna alla scelta della difficoltà dei bot -->
@@ -38,6 +25,27 @@
         </div>
       </div>
     }
+
+    <!-- Log mosse: gutter sinistro su desktop, tra bot e mazzo su laptop -->
+    <aside class="game-log">
+      <h3 class="log-title">Log partita</h3>
+      @if (gameLog().length === 0) {
+        <p class="log-empty">Le mosse appariranno qui.</p>
+      }
+      <ul class="log-list">
+        @for (entry of gameLog(); track entry.id) {
+          <li
+            class="log-entry"
+            [class.log-bot]="entry.who === 'bot'"
+            [class.log-human]="entry.who === 'human'"
+            [class.log-system]="entry.who === 'system'"
+          >
+            {{ entry.text }}
+          </li>
+        }
+      </ul>
+    </aside>
+
     <!-- Mazzo: pila di carte coperte da cui pescare -->
     <div class="stock-pile">
       <button
@@ -61,7 +69,7 @@
 
   <!-- Tavolo -->
   <div class="table-area" cdkDropListGroup>
-    <div class="melds">
+    <div class="melds" (mousemove)="onFeltMove($event)">
       @for (meld of workingTable(); track meld.id) {
         <div
           class="meld"
@@ -135,7 +143,7 @@
       Annulla mossa
     </button>
     <button mat-stroked-button [disabled]="!isHumanTurn()" (click)="undoTurn()">Annulla turno</button>
-    <button mat-button (click)="newGame()">Nuova partita</button>
+    <button mat-button class="new-game-btn" [class.attract]="isWon()" (click)="newGame()">Nuova partita</button>
   </div>
 
   </div>
