@@ -1,13 +1,150 @@
+/* ============================================================
+   Cruciverba — tema "Retro Grid".
+   Tutto parametrizzato su variabili: variante CHIARA di default
+   (synthwave all'alba), variante SCURA sotto .dark-theme (neon).
+   Ispirato a Retro Grid di 21st.dev.
+   ============================================================ */
 .cw-page {
   --cw-cell: 2.5rem;
+
+  /* ── Variante CHIARA (default) ── */
+  --cw-accent: #0891b2;     /* cyan scuro, leggibile su chiaro */
+  --cw-accent2: #c026d3;    /* magenta */
+  --cw-ink: #15233d;
+  --cw-ink-dim: #5b6b86;
+
+  --cw-bg: radial-gradient(120% 90% at 50% -10%, #fdf1ff 0%, #eaf1ff 55%, #dbe6f6 100%);
+  --cw-floor-line: rgba(99, 102, 241, 0.28);
+  --cw-horizon: radial-gradient(60% 100% at 50% 100%, rgba(192, 38, 211, 0.18), transparent 70%),
+    radial-gradient(80% 100% at 50% 100%, rgba(8, 145, 178, 0.18), transparent 72%);
+  --cw-scan-opacity: 0.1;
+  --cw-vignette: radial-gradient(120% 100% at 50% 35%, transparent 55%, rgba(60, 70, 110, 0.18) 100%);
+
+  --cw-panel-bg: rgba(255, 255, 255, 0.72);
+  --cw-panel-border: rgba(8, 145, 178, 0.35);
+  --cw-grid-line: rgba(8, 145, 178, 0.4);
+  --cw-grid-border: rgba(8, 145, 178, 0.55);
+  --cw-grid-glow: rgba(8, 145, 178, 0.18);
+  --cw-cell-bg: #ffffff;
+  --cw-cell-black: #1e2440;
+  --cw-cell-shadow: rgba(8, 145, 178, 0.18);
+  --cw-highlight: rgba(8, 145, 178, 0.14);
+  --cw-sel-bg: rgba(8, 145, 178, 0.22);
+  --cw-sel-text: #06303a;
+  --cw-wrong: #dc2626;
+  --cw-tag-text: #ffffff;
+  --cw-title-glow:
+    0 0 6px rgba(8, 145, 178, 0.35),
+    0 0 16px rgba(192, 38, 211, 0.2);
+
+  position: relative;
+  isolation: isolate;
   max-width: 1240px;
   margin: 0 auto;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  color: var(--cw-ink);
 }
 
+/* ── Variante SCURA (neon) ── */
+:host-context(.dark-theme) .cw-page {
+  --cw-accent: #22d3ee;
+  --cw-accent2: #e84bd8;
+  --cw-ink: #e7f6ff;
+  --cw-ink-dim: #8aa0bf;
+
+  --cw-bg: radial-gradient(120% 90% at 50% -10%, #16163a 0%, #070712 60%, #04040a 100%);
+  --cw-floor-line: rgba(34, 211, 238, 0.32);
+  --cw-horizon: radial-gradient(60% 100% at 50% 100%, rgba(232, 75, 216, 0.35), transparent 70%),
+    radial-gradient(80% 100% at 50% 100%, rgba(34, 211, 238, 0.30), transparent 72%);
+  --cw-scan-opacity: 0.5;
+  --cw-vignette: radial-gradient(120% 100% at 50% 35%, transparent 45%, rgba(0, 0, 0, 0.6) 100%);
+
+  --cw-panel-bg: rgba(10, 14, 30, 0.6);
+  --cw-panel-border: rgba(34, 211, 238, 0.35);
+  --cw-grid-line: rgba(34, 211, 238, 0.22);
+  --cw-grid-border: rgba(34, 211, 238, 0.55);
+  --cw-grid-glow: rgba(34, 211, 238, 0.22);
+  --cw-cell-bg: rgba(8, 11, 26, 0.78);
+  --cw-cell-black: #04050d;
+  --cw-cell-shadow: rgba(34, 211, 238, 0.35);
+  --cw-highlight: rgba(34, 211, 238, 0.14);
+  --cw-sel-bg: rgba(34, 211, 238, 0.30);
+  --cw-sel-text: #f2feff;
+  --cw-wrong: #ff6aa8;
+  --cw-tag-text: #07111a;
+  --cw-title-glow:
+    0 0 8px rgba(34, 211, 238, 0.8),
+    0 0 22px rgba(34, 211, 238, 0.5),
+    0 0 40px rgba(232, 75, 216, 0.35);
+}
+
+/* ── Sfondo retro-grid ──────────────────────────────────── */
+.cw-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--cw-bg);
+}
+
+/* piano prospettico che scorre verso l'orizzonte */
+.rg-floor {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: -20%;
+  height: 90%;
+  background-image:
+    linear-gradient(to right, var(--cw-floor-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--cw-floor-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transform: perspective(380px) rotateX(62deg);
+  transform-origin: bottom center;
+  -webkit-mask-image: linear-gradient(to top, #000 5%, transparent 72%);
+  mask-image: linear-gradient(to top, #000 5%, transparent 72%);
+  animation: rg-scroll 5.5s linear infinite;
+}
+
+@keyframes rg-scroll {
+  from { background-position: 0 0; }
+  to { background-position: 0 44px; }
+}
+
+/* bagliore all'orizzonte */
+.rg-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 38%;
+  height: 26%;
+  background: var(--cw-horizon);
+  filter: blur(26px);
+}
+
+/* scanline CRT */
+.rg-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.18) 2px 3px);
+  mix-blend-mode: multiply;
+  opacity: var(--cw-scan-opacity);
+}
+
+.rg-vignette {
+  position: absolute;
+  inset: 0;
+  background: var(--cw-vignette);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rg-floor { animation: none; }
+}
+
+/* ── Header ─────────────────────────────────────────────── */
 .cw-header {
   display: flex;
   align-items: center;
@@ -16,8 +153,12 @@
 
 .cw-title {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cw-ink);
+  text-shadow: var(--cw-title-glow);
 }
 
 .cw-timer {
@@ -26,24 +167,19 @@
   font-size: 1.3rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  opacity: 0.85;
+  color: var(--cw-accent);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--cw-accent) 50%, transparent);
 }
 
-.cw-result-time {
-  margin: 0;
-  font-weight: 700;
-}
-
-.cw-result-best {
-  margin: 0;
-  font-weight: 600;
-  opacity: 0.8;
+.cw-header a {
+  color: var(--cw-ink-dim);
 }
 
 .cw-loading {
-  color: var(--clr-text-secondary);
+  color: var(--cw-ink-dim);
 }
 
+/* ── Body ───────────────────────────────────────────────── */
 .cw-body {
   display: flex;
   flex-wrap: wrap;
@@ -58,15 +194,19 @@
   min-width: 0;
 }
 
-/* Barra della definizione corrente (parola selezionata) */
+/* Barra definizione corrente: glass con bordo accent */
 .cw-active-clue {
   display: flex;
   align-items: baseline;
   gap: 0.6rem;
-  padding: 0.55rem 0.85rem;
-  background: var(--clr-highlight, #dbeafe);
-  border-left: 4px solid var(--clr-selected, #3b82f6);
-  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--cw-panel-bg);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--cw-panel-border);
+  border-left: 4px solid var(--cw-accent);
+  border-radius: 0.6rem;
+  box-shadow: 0 0 18px var(--cw-grid-glow);
   min-height: 1.4rem;
 }
 
@@ -74,65 +214,83 @@
   flex: 0 0 auto;
   font-size: 0.78rem;
   font-weight: 700;
-  padding: 0.12rem 0.5rem;
+  padding: 0.14rem 0.55rem;
   border-radius: 1rem;
-  background: var(--clr-selected, #3b82f6);
-  color: #fff;
+  background: linear-gradient(135deg, var(--cw-accent), var(--cw-accent2));
+  color: var(--cw-tag-text);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--cw-accent) 45%, transparent);
   white-space: nowrap;
 }
 
 .cw-active-text {
   font-weight: 600;
-  color: var(--clr-text-primary, #1a1a2e);
+  color: var(--cw-ink);
 }
 
 .cw-active-hint {
-  opacity: 0.7;
+  color: var(--cw-ink-dim);
   font-style: italic;
 }
 
-/* Griglia */
+/* ── Griglia ────────────────────────────────────────────── */
 .cw-grid {
   display: grid;
   gap: 1px;
-  background: var(--clr-grid-border, #1a1a2e);
-  border: 2px solid var(--clr-grid-border, #1a1a2e);
+  background: var(--cw-grid-line);
+  border: 1px solid var(--cw-grid-border);
+  border-radius: 0.5rem;
   outline: none;
   width: max-content;
+  box-shadow:
+    0 0 28px var(--cw-grid-glow),
+    inset 0 0 36px rgba(0, 0, 0, 0.18);
 }
 
 .cw-cell {
   position: relative;
   width: var(--cw-cell);
   height: var(--cw-cell);
-  background: var(--clr-cell-bg, #fff);
+  background: var(--cw-cell-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--clr-text-primary, #1a1a2e);
+  color: var(--cw-ink);
+  text-shadow: 0 0 6px var(--cw-cell-shadow);
   cursor: pointer;
   user-select: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .cw-cell.black {
-  background: var(--clr-grid-border, #1a1a2e);
+  background: var(--cw-cell-black);
   cursor: default;
 }
 
 .cw-cell.highlight {
-  background: var(--clr-highlight, #dbeafe);
+  background: var(--cw-highlight);
 }
 
 .cw-cell.selected {
-  background: var(--clr-selected, #3b82f6);
-  color: #fff;
+  background: var(--cw-sel-bg);
+  color: var(--cw-sel-text);
+  animation: cell-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes cell-pulse {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1px var(--cw-accent), 0 0 12px color-mix(in srgb, var(--cw-accent) 55%, transparent);
+  }
+  50% {
+    box-shadow: inset 0 0 0 1px var(--cw-accent), 0 0 22px color-mix(in srgb, var(--cw-accent) 90%, transparent);
+  }
 }
 
 .cw-cell.wrong {
-  color: var(--clr-error-text, #b91c1c);
+  color: var(--cw-wrong);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--cw-wrong) 70%, transparent);
 }
 
 .cw-num {
@@ -142,19 +300,19 @@
   font-size: 0.55rem;
   font-weight: 600;
   line-height: 1;
+  color: color-mix(in srgb, var(--cw-accent) 80%, transparent);
+  text-shadow: none;
 }
 
 .cw-letter {
   pointer-events: none;
 }
 
-/* Definizioni */
+/* ── Definizioni ────────────────────────────────────────── */
 .cw-clues {
   flex: 1;
   min-width: 360px;
   display: grid;
-  /* due colonne sempre affiancate; minmax(0,1fr) fa andare a capo il testo
-     dentro la colonna invece di far collassare il layout su una colonna. */
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.5rem;
   align-items: start;
@@ -171,8 +329,13 @@
 }
 
 .cw-clues h2 {
-  margin: 0 0 0.4rem;
-  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cw-accent);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--cw-accent) 35%, transparent);
 }
 
 .cw-clues ul {
@@ -194,15 +357,16 @@
   border-left: 3px solid transparent;
   font-size: 0.9rem;
   line-height: 1.35;
+  color: var(--cw-ink);
   cursor: pointer;
-  transition: background 0.12s ease;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
 }
 
 .cw-clues li .cw-clue-num {
   flex: 0 0 1.7rem;
   text-align: right;
   font-variant-numeric: tabular-nums;
-  color: var(--clr-text-secondary, #5b6478);
+  color: var(--cw-ink-dim);
 }
 
 .cw-clue-text {
@@ -210,37 +374,51 @@
   min-width: 0;
 }
 
-/* Contesti tra parentesi: in grassetto */
 .cw-tags {
   font-weight: 700;
 }
 
 .cw-clues li:hover {
-  background: var(--clr-surface-2, #f0f4ff);
+  background: color-mix(in srgb, var(--cw-accent) 8%, transparent);
 }
 
 .cw-clues li.active {
-  background: var(--clr-highlight, #dbeafe);
-  border-left-color: var(--clr-selected, #3b82f6);
+  background: color-mix(in srgb, var(--cw-accent) 16%, transparent);
+  border-left-color: var(--cw-accent);
+  box-shadow: 0 0 14px var(--cw-grid-glow);
   font-weight: 600;
 }
 
 .cw-clues li.active .cw-clue-num {
-  color: var(--clr-selected, #3b82f6);
+  color: var(--cw-accent);
 }
 
-/* Controlli */
+/* ── Controlli ──────────────────────────────────────────── */
 .cw-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-/* Esito */
+/* leggibilità dei bottoni Material */
+.cw-controls .mat-mdc-button,
+.cw-controls .mat-mdc-outlined-button {
+  color: var(--cw-ink);
+}
+
+.cw-controls .mat-mdc-outlined-button {
+  border-color: color-mix(in srgb, var(--cw-accent) 45%, transparent);
+}
+
+.cw-controls .mat-mdc-outlined-button:hover {
+  background: color-mix(in srgb, var(--cw-accent) 10%, transparent);
+}
+
+/* ── Esito (overlay) ────────────────────────────────────── */
 .cw-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,12 +426,27 @@
 }
 
 .cw-result {
-  background: var(--clr-surface, #fff);
-  color: var(--clr-text-primary, #1a1a2e);
+  background: var(--cw-panel-bg);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--cw-ink);
   padding: 2rem;
+  border: 1px solid var(--cw-panel-border);
   border-radius: 1rem;
+  box-shadow: 0 0 40px var(--cw-grid-glow);
   text-align: center;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.cw-result-time {
+  margin: 0;
+  font-weight: 700;
+}
+
+.cw-result-best {
+  margin: 0;
+  font-weight: 600;
+  color: var(--cw-ink-dim);
 }

@@ -13,7 +13,8 @@
    Tutto decorativo: pointer-events none, dietro al contenuto.
    ============================================================ */
 .ambient {
-  position: absolute;
+  /* fixed → copre sempre l'intera viewport, non l'altezza del container */
+  position: fixed;
   inset: 0;
   z-index: -1;
   overflow: hidden;
@@ -151,25 +152,41 @@
 }
 
 .game-header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  position: relative;
+  height: 2.5rem;
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
 }
 
-.game-header h2 {
-  flex: 1;
-  text-align: center;
+/* titolo: ancorato al centro esatto del board */
+.header-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   margin: 0;
+  white-space: nowrap;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--clr-text-primary);
 }
 
-.timer-wrap {
-  min-width: 80px;
-  text-align: right;
+/* link: bordo destro a 8rem dal centro */
+.header-back {
+  position: absolute;
+  right: calc(50% + 9rem);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+/* timer: bordo sinistro a 8rem dal centro → equidistante dal titolo */
+.header-timer {
+  position: absolute;
+  left: calc(50% + 12rem);
+  top: 55%;
+  transform: translateY(-50%);
+  white-space: nowrap;
   color: var(--clr-text-primary);
 }
 
@@ -221,13 +238,6 @@
   background: #1a3a1a;
   color: #a5d6a7;
   border-color: #2e7d32;
-}
-
-.game-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 /* Error counter */
