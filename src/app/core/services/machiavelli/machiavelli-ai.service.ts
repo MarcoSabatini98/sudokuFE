@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 
 import { Card, Meld, Suit, SUITS } from '../../../shared/models/card.model';
 import { GameState } from '../../../shared/models/machiavelli.model';
-import { BotDifficulty, MIN_MELD_SIZE } from '../../constants/machiavelli.constants';
+import { BotDifficulty, BOT_SOLVER_BUDGET_MS, MIN_MELD_SIZE } from '../../constants/machiavelli.constants';
 import {
   effectiveRank,
   isTableValid,
@@ -14,6 +14,7 @@ import {
   splitRunWithCard,
   MachiavelliEngineService,
 } from './machiavelli-engine.service';
+import { MachiavelliSolverService } from './machiavelli-solver.service';
 
 interface TurnPlan {
   table: Meld[];
@@ -45,6 +46,7 @@ const ACE_HIGH = 14;
 @Injectable({ providedIn: 'root' })
 export class MachiavelliAiService {
   private readonly engine = inject(MachiavelliEngineService);
+  private readonly solver = inject(MachiavelliSolverService);
 
   /** Esegue il turno del bot: cala se può, altrimenti pesca. */
   takeTurn(state: GameState, playerIndex: number, difficulty: BotDifficulty = 'easy'): GameState {
@@ -63,7 +65,21 @@ export class MachiavelliAiService {
     return this.engine.advanceTurn(next);
   }
 
+  /**
+   * Piano del turno: combina l'euristica con il solver di riarrangiamento del
+   * tavolo (medio/difficile) e sceglie quello che cala più carte dalla mano.
+   */
   planTurn(state: GameState, playerIndex: number, difficulty: BotDifficulty = 'easy'): TurnPlan | null {
+    const original = state.players[playerIndex].hand;
+    const heuristic = this.heuristicPlan(state, playerIndex, difficulty);
+    const solver = this.solverPlan(state, playerIndex, BOT_SOLVER_BUDGET_MS[difficulty]);
+
+    const placed = (plan: TurnPlan | null) => (plan ? original.length - plan.hand.length : -1);
+    return placed(solver) > placed(heuristic) ? solver : heuristic;
+  }
+
+  /** Euristica a livelli (estendi, forma, riusa jolly, spezza scale). */
+  private heuristicPlan(state: GameState, playerIndex: number, difficulty: BotDifficulty): TurnPlan | null {
     const original = state.players[playerIndex].hand;
 
     const easy = this.greedyFrom(this.cloneTable(state.table), [...original]);
@@ -87,6 +103,29 @@ export class MachiavelliAiService {
       return { table: res.table, hand: res.hand };
     }
     return easyPlan;
+  }
+
+  /**
+   * Riarrangiamento del tavolo via solver, con safety net: tutte le carte del
+   * tavolo riusate, ≥1 carta dalla mano, nessuna carta inventata/duplicata,
+   * tavolo valido. Se una condizione non regge ritorna null.
+   */
+  private solverPlan(state: GameState, playerIndex: number, budgetMs: number): TurnPlan | null {
+    const tableCards = state.table.flatMap((m) => m.cards);
+    const original = state.players[playerIndex].hand;
+    const result = this.solver.solve(tableCards, [...original], budgetMs);
+    if (!result) return null;
+
+    const placedIds = result.melds.flat().map((c) => c.id);
+    if (new Set(placedIds).size !== placedIds.length) return null; // carta duplicata
+    const placedSet = new Set(placedIds);
+    if (!tableCards.every((c) => placedSet.has(c.id))) return null; // carta del tavolo persa
+
+    const newHand = original.filter((c) => !placedSet.has(c.id));
+    if (newHand.length >= original.length) return null; // nessuna carta calata
+
+    const table = result.melds.map((cards) => ({ id: meldId(), cards }));
+    return isTableValid(table) ? { table, hand: newHand } : null;
   }
 
   // -- Greedy di base --------------------------------------------------------
