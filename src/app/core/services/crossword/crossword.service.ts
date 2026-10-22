@@ -1,0 +1,49 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+
+import { environment } from '../../../../environments/environment';
+import { ApiResponse, PaginatedData } from '../../../shared/models/api-response.model';
+import { toHttpParams } from '../../utils/http-params';
+import {
+  Crossword,
+  CrosswordDifficulty,
+  CrosswordGame,
+  CrosswordGameResult,
+  CrosswordRecord,
+} from '../../../shared/models/crossword.model';
+
+@Injectable({ providedIn: 'root' })
+export class CrosswordService {
+  private readonly http = inject(HttpClient);
+  private readonly API_URL = `${environment.apiUrl}/crossword`;
+
+  generate(difficulty: CrosswordDifficulty = 'medium'): Observable<Crossword> {
+    const params = new HttpParams().set('difficulty', difficulty);
+    return this.http
+      .get<ApiResponse<Crossword>>(`${this.API_URL}/generate`, { params })
+      .pipe(map((res) => res.data));
+  }
+
+  saveGame(payload: CrosswordGameResult): Observable<unknown> {
+    return this.http
+      .post<ApiResponse<unknown>>(`${this.API_URL}/games`, payload)
+      .pipe(map((res) => res.data));
+  }
+
+  getRecords(): Observable<CrosswordRecord[]> {
+    return this.http
+      .get<ApiResponse<CrosswordRecord[]>>(`${this.API_URL}/records`)
+      .pipe(map((res) => res.data));
+  }
+
+  getHistory(
+    filters: { difficulty?: CrosswordDifficulty; page?: number; limit?: number } = {}
+  ): Observable<PaginatedData<CrosswordGame>> {
+    return this.http
+      .get<ApiResponse<PaginatedData<CrosswordGame>>>(`${this.API_URL}/games`, {
+        params: toHttpParams(filters),
+      })
+      .pipe(map((res) => res.data));
+  }
+}

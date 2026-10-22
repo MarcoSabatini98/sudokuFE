@@ -19,33 +19,38 @@ try {
     exit
 } catch {}
 
-# Start backend
-Start-Process "cmd.exe" -ArgumentList "/k", "title Sudoku-BE && cd /d `"$BE_PATH`" && node server.js" -WindowStyle Minimized
-
-# Start frontend
-Start-Process "cmd.exe" -ArgumentList "/k", "title Sudoku-FE && cd /d `"$FE_PATH`" && npx ng serve --open=false" -WindowStyle Minimized
-
-# Poll until Angular is ready (max 90s)
-Write-Host "Avvio Sudoku..." -ForegroundColor Blue
-$timeout = 90
-$elapsed = 0
-$ready   = $false
-
-while ($elapsed -lt $timeout) {
-    Start-Sleep -Seconds 3
-    $elapsed += 3
-    try {
-        $null = Invoke-WebRequest -Uri $URL -UseBasicParsing -TimeoutSec 2 -ErrorAction Stop
-        $ready = $true
-        break
-    } catch {}
-    Write-Host "  attesa... ($elapsed s)" -ForegroundColor DarkGray
+# --- Backend: pull + npm install se package.json cambiato ---
+Write-Host "Aggiornamento BE..." -ForegroundColor Blue
+Push-Location $BE_PATH
+git checkout develop 2>$null | Out-Null
+$bePkgBefore = git hash-object package.json 2>$null
+git pull --ff-only
+$bePkgAfter = git hash-object package.json 2>$null
+if (-not (Test-Path "node_modules") -or $bePkgBefore -ne $bePkgAfter) {
+    Write-Host "  Dipendenze BE aggiornate, npm install..." -ForegroundColor Yellow
+    npm install
 }
+Pop-Location
 
-if ($ready) {
-    Write-Host "Pronto! Apertura browser..." -ForegroundColor Green
-    Start-Process $URL
-} else {
-    Write-Host "Timeout: il frontend non e' partito in $timeout s." -ForegroundColor Red
-    Write-Host "Controlla le finestre Sudoku-BE e Sudoku-FE."
+# --- Frontend: pull + npm install se package.json cambiato ---
+Write-Host "Aggiornamento FE..." -ForegroundColor Blue
+Push-Location $FE_PATH
+git checkout develop 2>$null | Out-Null
+$fePkgBefore = git hash-object package.json 2>$null
+git pull --ff-only
+$fePkgAfter = git hash-object package.json 2>$null
+if (-not (Test-Path "node_modules") -or $fePkgBefore -ne $fePkgAfter) {
+    Write-Host "  Dipendenze FE aggiornate, npm install..." -ForegroundColor Yellow
+    npm install
 }
+Pop-Location
+
+# Backend: applica solo le migrazioni pending, poi avvia (pull gia' fatto sopra)
+$beCmd = 'title Sudoku-BE && cd /d "' + $BE_PATH + '" && npx sequelize-cli db:migrate && npm run dev'
+Start-Process "cmd.exe" -ArgumentList "/k", $beCmd -WindowStyle Minimized
+
+# Frontend: avvia e apre il browser quando Angular e' pronto (pull + install gia' fatto sopra)
+$feCmd = 'title Sudoku-FE && cd /d "' + $FE_PATH + '" && npx ng serve --open'
+Start-Process "cmd.exe" -ArgumentList "/k", $feCmd -WindowStyle Minimized
+
+Write-Host "BE e FE in avvio. Il browser si aprira' automaticamente." -ForegroundColor Green

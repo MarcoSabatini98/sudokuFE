@@ -1,0 +1,53 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+
+  --mx: 50vw;
+  --my: 35vh;
+
+  /* ── Variante CHIARA ── */
+  --ad-dot: rgba(40, 50, 90, 0.16);
+  --ad-glow: rgba(59, 130, 246, 0.85);
+  background: radial-gradient(125% 90% at 50% -10%, #f3f6ff 0%, #e9eef8 60%, #e1e7f4 100%);
+}
+
+:host-context(.dark-theme) {
+  --ad-dot: rgba(255, 255, 255, 0.10);
+  --ad-glow: rgba(96, 165, 250, 0.95);
+  background: radial-gradient(125% 90% at 50% -10%, #15162e 0%, #0a0a16 60%, #06060d 100%);
+}
+
+.ad-base,
+.ad-glow {
+  position: absolute;
+  inset: 0;
+}
+
+/* griglia di puntini di base, tenue */
+.ad-base {
+  background-image: radial-gradient(var(--ad-dot) 1.4px, transparent 1.6px);
+  background-size: 22px 22px;
+}
+
+/* stessi puntini ma accesi, rivelati solo attorno al cursore */
+.ad-glow {
+  background-image: radial-gradient(var(--ad-glow) 1.6px, transparent 1.9px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(240px circle at var(--mx) var(--my), #000 0%, transparent 65%);
+  mask-image: radial-gradient(240px circle at var(--mx) var(--my), #000 0%, transparent 65%);
+  filter: drop-shadow(0 0 5px var(--ad-glow));
+}
+
+.ad-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 30%, transparent 55%, rgba(40, 50, 90, 0.16) 100%);
+}
+
+:host-context(.dark-theme) .ad-vignette {
+  background: radial-gradient(120% 100% at 50% 30%, transparent 45%, rgba(0, 0, 0, 0.5) 100%);
+}

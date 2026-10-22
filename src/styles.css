@@ -14,12 +14,12 @@
 
   /* Sudoku cells */
   --clr-cell-bg:      #ffffff;
-  --clr-cell-given:   #f0f0f0;
-  --clr-highlight:    #e3f2fd;
-  --clr-same-number:  #a8d4f5;
-  --clr-selected:     #64b5f6;
-  --clr-error-bg:     #ffebee;
-  --clr-error-text:   #d32f2f;
+  --clr-cell-given:   #e8e4d8;
+  --clr-highlight:    #dbeafe;
+  --clr-same-number:  #fef08a;
+  --clr-selected:     #3b82f6;
+  --clr-error-bg:     #fee2e2;
+  --clr-error-text:   #b91c1c;
 
   /* Number tiles */
   --clr-tile-bg:          #e8f4fd;
@@ -45,12 +45,12 @@
   --clr-shadow:       rgba(0, 0, 0, 0.4);
 
   --clr-cell-bg:      #1e1e2e;
-  --clr-cell-given:   #2a2a40;
-  --clr-highlight:    #1a2f4e;
-  --clr-same-number:  #163a62;
-  --clr-selected:     #1565c0;
-  --clr-error-bg:     #3b1010;
-  --clr-error-text:   #ef9a9a;
+  --clr-cell-given:   #302c1f;
+  --clr-highlight:    #1e3358;
+  --clr-same-number:  #443600;
+  --clr-selected:     #2563eb;
+  --clr-error-bg:     #3c0a0a;
+  --clr-error-text:   #f87171;
 
   --clr-tile-bg:          #1e2a3e;
   --clr-tile-border:      #2a4a6e;
@@ -156,4 +156,50 @@ a {
 .dark-theme .mat-mdc-snack-bar-container .mdc-snackbar__surface {
   background: var(--clr-surface-2) !important;
   color: var(--clr-text-primary) !important;
+}
+
+/* ── Scrollbar fini e trasparenti, thumb con effetto glass ──────── */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--clr-scrollbar, rgba(120, 130, 150, 0.4)) transparent;
+}
+
+/* WebKit / Chromium */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--clr-scrollbar, rgba(120, 130, 150, 0.4));
+  /* glass: bordo chiaro + leggero blur dietro la barretta */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--clr-scrollbar-hover, rgba(120, 130, 150, 0.65));
+}
+
+/* angolo in basso quando ci sono entrambe le barre */
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+:root {
+  --clr-scrollbar: rgba(90, 100, 125, 0.38);
+  --clr-scrollbar-hover: rgba(90, 100, 125, 0.6);
+}
+
+.dark-theme {
+  --clr-scrollbar: rgba(200, 210, 235, 0.28);
+  --clr-scrollbar-hover: rgba(200, 210, 235, 0.5);
 }

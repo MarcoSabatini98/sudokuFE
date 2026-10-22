@@ -1,27 +1,53 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 
-import { DIFFICULTIES, DIFFICULTY_LABELS, type Difficulty } from '../../shared/models/game.model';
+import { AmbientDotsComponent } from '../../shared/components/ambient-dots/ambient-dots.component';
+
+interface GameTile {
+  key: 'sudoku' | 'machiavelli' | 'crossword';
+  title: string;
+  description: string;
+  route: string;
+  /** Colore d'accento della card (usato come CSS var --accent). */
+  accent: string;
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, MatButtonModule, MatCardModule, MatIconModule],
+  imports: [AmbientDotsComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class HomeComponent {
-  readonly difficulties = DIFFICULTIES;
-  readonly labels = DIFFICULTY_LABELS;
-
   private readonly router = inject(Router);
 
-  startGame(difficulty: Difficulty): void {
-    this.router.navigate(['/game'], { queryParams: { difficulty } });
+  readonly games: GameTile[] = [
+    {
+      key: 'sudoku',
+      title: 'Sudoku',
+      description: 'Quattro difficoltà, timer, note e record.',
+      route: '/sudoku',
+      accent: '#3b82f6',
+    },
+    {
+      key: 'machiavelli',
+      title: 'Macchiavelli',
+      description: 'Gioco di carte: tu contro 3 bot.',
+      route: '/machiavelli',
+      accent: '#10b981',
+    },
+    {
+      key: 'crossword',
+      title: 'Cruciverba',
+      description: 'Schemi a parole incrociate con definizioni.',
+      route: '/crossword',
+      accent: '#8b5cf6',
+    },
+  ];
+
+  open(game: GameTile): void {
+    this.router.navigate([game.route]);
   }
 }

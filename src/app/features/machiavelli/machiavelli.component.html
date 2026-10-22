@@ -1,0 +1,150 @@
+<div class="mac-layout">
+  <!-- Sfondo: tavolo da gioco sotto un riflettore (lampada + vignetta + grana) -->
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-lamp"></div>
+    <div class="ambient-vignette"></div>
+    <div class="ambient-grain"></div>
+  </div>
+
+  <div class="mac-container">
+  <!-- Breadcrumb: torna alla scelta della difficoltà dei bot -->
+  <div class="mac-breadcrumb">
+    <a mat-button routerLink="/machiavelli">← Seleziona difficoltà Bot</a>
+  </div>
+
+  <!-- Avversari -->
+  <div class="opponents">
+    @for (bot of opponents(); track bot.id) {
+      <div class="opponent" [class.active]="state().currentPlayer === bot.id">
+        <span class="opp-name">{{ bot.name }}</span>
+        <span class="opp-count">{{ bot.hand.length }} carte</span>
+        <div class="opp-cards">
+          @for (c of bot.hand.slice(0, 5); track c.id) {
+            <app-playing-card [card]="c" [faceDown]="true" />
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Log mosse: gutter sinistro su desktop, tra bot e mazzo su laptop -->
+    <aside class="game-log">
+      <h3 class="log-title">Log partita</h3>
+      @if (gameLog().length === 0) {
+        <p class="log-empty">Le mosse appariranno qui.</p>
+      }
+      <ul class="log-list">
+        @for (entry of gameLog(); track entry.id) {
+          <li
+            class="log-entry"
+            [class.log-bot]="entry.who === 'bot'"
+            [class.log-human]="entry.who === 'human'"
+            [class.log-system]="entry.who === 'system'"
+          >
+            {{ entry.text }}
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <!-- Mazzo: pila di carte coperte da cui pescare -->
+    <div class="stock-pile">
+      <button
+        type="button"
+        class="deck"
+        [disabled]="!canDraw()"
+        (click)="draw()"
+        aria-label="Pesca una carta dal mazzo"
+      >
+        @if (state().stock.length === 0) {
+          <span class="deck-empty">vuoto</span>
+        } @else {
+          @for (i of stockPreview(); track i) {
+            <app-playing-card class="deck-card" [card]="cardBack" [faceDown]="true" />
+          }
+        }
+      </button>
+      <div class="stock-label">Mazzo: {{ state().stock.length }}</div>
+    </div>
+  </div>
+
+  <!-- Tavolo -->
+  <div class="table-area" cdkDropListGroup>
+    <div class="melds" (mousemove)="onFeltMove($event)">
+      @for (meld of workingTable(); track meld.id) {
+        <div
+          class="meld"
+          [class.invalid]="!isMeldValid(meld)"
+          [class.carried]="carriedMeldId() === meld.id"
+          [id]="meld.id"
+          tabindex="0"
+          cdkDropList
+          cdkDropListSortingDisabled
+          [cdkDropListData]="meld.cards"
+          [cdkDropListDisabled]="!isHumanTurn()"
+          (cdkDropListDropped)="drop($event)"
+          (click)="onMeldClick(meld)"
+          (dblclick)="onMeldDblClick(meld)"
+          (keyup.enter)="onMeldClick(meld)"
+        >
+          @for (card of meld.cards; track card.id) {
+            <app-playing-card cdkDrag [cdkDragData]="card" [cdkDragDisabled]="!isHumanTurn()" [card]="card" />
+          }
+        </div>
+      }
+
+      <!-- Zona nuova combinazione -->
+      <div
+        class="meld new-meld"
+        [id]="NEW_MELD_ID"
+        cdkDropList
+        cdkDropListSortingDisabled
+        [cdkDropListData]="emptyZone"
+        [cdkDropListDisabled]="!isHumanTurn()"
+        (cdkDropListDropped)="drop($event)"
+      >
+        <span class="placeholder">+ nuova combinazione</span>
+      </div>
+    </div>
+
+    <!-- Mano umana -->
+    <div class="hand-area">
+      <div class="hand-label">
+        La tua mano ({{ workingHand().length }})
+        @if (thinking()) { <span class="thinking">· i bot stanno giocando…</span> }
+      </div>
+      <div
+        class="hand"
+        [id]="HAND_ID"
+        cdkDropList
+        cdkDropListSortingDisabled
+        [cdkDropListData]="workingHand()"
+        [cdkDropListDisabled]="!isHumanTurn()"
+        (cdkDropListDropped)="drop($event)"
+      >
+        @for (card of workingHand(); track card.id) {
+          <app-playing-card cdkDrag [cdkDragData]="card" [cdkDragDisabled]="!isHumanTurn()" [card]="card" />
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Controlli -->
+  <div class="controls">
+    <button mat-flat-button color="primary" [disabled]="!isHumanTurn()" (click)="confirmTurn()">
+      Conferma turno
+    </button>
+    <button mat-stroked-button [disabled]="!canDraw()" (click)="draw()">Pesca</button>
+    <button mat-stroked-button [disabled]="!isHumanTurn()" (click)="sortHand()">Ordina mano</button>
+    <button
+      mat-stroked-button
+      [disabled]="!isHumanTurn() || !canUndoMove()"
+      (click)="undoMove()"
+    >
+      Annulla mossa
+    </button>
+    <button mat-stroked-button [disabled]="!isHumanTurn()" (click)="undoTurn()">Annulla turno</button>
+    <button mat-button class="new-game-btn" [class.attract]="isWon()" (click)="newGame()">Nuova partita</button>
+  </div>
+
+  </div>
+</div>

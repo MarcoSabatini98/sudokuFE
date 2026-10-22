@@ -1,33 +1,43 @@
-import { render, screen } from '@testing-library/angular';
+import { render, screen, RenderResult } from '@testing-library/angular';
 import userEvent from '@testing-library/user-event';
 import { provideRouter, Router } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { HomeComponent } from './home.component';
-import { DIFFICULTY_LABELS } from '../../shared/models/game.model';
 
-describe('HomeComponent', () => {
-  it('should render all four difficulty cards', async () => {
-    await render(HomeComponent, {
-      providers: [provideRouter([]), provideAnimationsAsync()],
-    });
+async function renderHome(): Promise<RenderResult<HomeComponent>> {
+  return render(HomeComponent, {
+    providers: [provideRouter([]), provideAnimationsAsync()],
+  });
+}
 
-    expect(screen.getByText(DIFFICULTY_LABELS['easy'])).toBeTruthy();
-    expect(screen.getByText(DIFFICULTY_LABELS['medium'])).toBeTruthy();
-    expect(screen.getByText(DIFFICULTY_LABELS['hard'])).toBeTruthy();
-    expect(screen.getByText(DIFFICULTY_LABELS['extreme'])).toBeTruthy();
+/** Renderizza la home, clicca la card indicata e ritorna lo spy di navigate. */
+async function clickCard(label: string): Promise<ReturnType<typeof vi.fn>> {
+  const navigateSpy = vi.fn();
+  const { fixture } = await renderHome();
+  const router = fixture.debugElement.injector.get(Router);
+  vi.spyOn(router, 'navigate').mockImplementation(navigateSpy);
+  await userEvent.click(screen.getByText(label));
+  return navigateSpy;
+}
+
+describe('HomeComponent (hub)', () => {
+  it('should render the three game cards', async () => {
+    await renderHome();
+    expect(screen.getByText('Sudoku')).toBeTruthy();
+    expect(screen.getByText('Macchiavelli')).toBeTruthy();
+    expect(screen.getByText('Cruciverba')).toBeTruthy();
   });
 
-  it('should navigate to /game on card click', async () => {
-    const navigateSpy = vi.fn();
-    const { fixture } = await render(HomeComponent, {
-      providers: [provideRouter([]), provideAnimationsAsync()],
-    });
+  it('should navigate to /sudoku on Sudoku card click', async () => {
+    expect(await clickCard('Sudoku')).toHaveBeenCalledWith(['/sudoku']);
+  });
 
-    const router = fixture.debugElement.injector.get(Router);
-    vi.spyOn(router, 'navigate').mockImplementation(navigateSpy);
+  it('should navigate to /machiavelli on Macchiavelli card click', async () => {
+    expect(await clickCard('Macchiavelli')).toHaveBeenCalledWith(['/machiavelli']);
+  });
 
-    await userEvent.click(screen.getByText(DIFFICULTY_LABELS['easy']));
-    expect(navigateSpy).toHaveBeenCalledWith(['/game'], { queryParams: { difficulty: 'easy' } });
+  it('should navigate to /crossword on Cruciverba card click', async () => {
+    expect(await clickCard('Cruciverba')).toHaveBeenCalledWith(['/crossword']);
   });
 });

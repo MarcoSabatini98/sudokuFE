@@ -1,0 +1,38 @@
+<div class="sk-page">
+  <app-ambient-mesh />
+  <header class="sk-hero">
+    <span class="sk-eyebrow">Cruciverba</span>
+    <h1 class="sk-title">Scegli la difficoltà</h1>
+    <p class="sk-sub">Tre livelli: griglia e vocabolario crescenti.</p>
+
+    <div class="sk-links">
+      <a class="sk-link" routerLink="/">← Giochi</a>
+      <a class="sk-link" routerLink="/crossword/stats">Record e cronologia →</a>
+    </div>
+  </header>
+
+  <div class="sk-grid">
+    @for (diff of difficulties; track diff) {
+      <button type="button" class="sk-card" [style.--accent]="meta[diff].accent" (click)="start(diff)">
+        <span class="sk-main">
+          <span class="sk-name">{{ labels[diff] }}</span>
+          <span class="sk-desc">{{ meta[diff].desc }}</span>
+        </span>
+
+        <span class="sk-side">
+          <span class="sk-level" aria-hidden="true">
+            @for (i of levels; track i) {
+              <span class="sk-dot" [class.on]="i <= meta[diff].level"></span>
+            }
+          </span>
+          <span class="sk-cta">
+            Gioca
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </span>
+      </button>
+    }
+  </div>
+</div>

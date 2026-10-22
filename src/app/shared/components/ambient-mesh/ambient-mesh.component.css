@@ -1,0 +1,92 @@
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+
+  /* ── Variante CHIARA ── */
+  --am-bg: radial-gradient(125% 90% at 50% -10%, #f5f7ff 0%, #eef1f9 60%, #e6ebf6 100%);
+  --am-c1: #3b82f6;
+  --am-c2: #8b5cf6;
+  --am-c3: #10b981;
+  --am-c4: #f59e0b;
+  --am-opacity: 0.4;
+  background: var(--am-bg);
+}
+
+:host-context(.dark-theme) {
+  --am-bg: radial-gradient(125% 90% at 50% -10%, #14152c 0%, #0a0a16 60%, #06060d 100%);
+  --am-opacity: 0.55;
+}
+
+.am-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: var(--am-opacity);
+  will-change: transform;
+}
+
+.am-blob.b1 {
+  width: 46vmin;
+  height: 46vmin;
+  top: -8%;
+  left: 4%;
+  background: radial-gradient(circle, var(--am-c1), transparent 70%);
+  animation: morph-a 19s ease-in-out infinite;
+}
+
+.am-blob.b2 {
+  width: 40vmin;
+  height: 40vmin;
+  top: 18%;
+  right: 2%;
+  background: radial-gradient(circle, var(--am-c2), transparent 70%);
+  animation: morph-b 23s ease-in-out infinite;
+}
+
+.am-blob.b3 {
+  width: 44vmin;
+  height: 44vmin;
+  bottom: -10%;
+  left: 30%;
+  background: radial-gradient(circle, var(--am-c3), transparent 70%);
+  animation: morph-c 21s ease-in-out infinite;
+}
+
+.am-blob.b4 {
+  width: 36vmin;
+  height: 36vmin;
+  bottom: 4%;
+  right: 24%;
+  background: radial-gradient(circle, var(--am-c4), transparent 70%);
+  animation: morph-d 26s ease-in-out infinite;
+}
+
+@keyframes morph-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8vmin, 6vmin) scale(1.18); }
+}
+
+@keyframes morph-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-7vmin, 8vmin) scale(1.12); }
+}
+
+@keyframes morph-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(6vmin, -7vmin) scale(1.15); }
+}
+
+@keyframes morph-d {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-6vmin, -5vmin) scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-blob {
+    animation: none;
+  }
+}
