@@ -24,6 +24,17 @@ export const BOT_THINK_DELAY_MS: Record<BotDifficulty, number> = {
   hard: 1600,
 };
 
+/**
+ * Budget di calcolo del solver di riarrangiamento del tavolo, per livello (ms).
+ * 0 = disattivato (solo euristica). Sincrono: tenuto basso per non bloccare la UI
+ * (trova comunque l'ottimo in quasi tutti i casi reali).
+ */
+export const BOT_SOLVER_BUDGET_MS: Record<BotDifficulty, number> = {
+  easy: 0,
+  medium: 500,
+  hard: 2000,
+};
+
 /** Pausa dopo la giocata di un bot (ms): lascia leggere la mossa prima del bot successivo. */
 export const BOT_REVEAL_PAUSE_MS = 650;
 
