@@ -226,6 +226,26 @@ export class CrosswordComponent implements OnDestroy {
     this.handleEdit(event, sel);
   }
 
+  /**
+   * Mobile keyboards send keydown with key "Unidentified", so typing lands in the
+   * hidden input instead. It always holds one space: empty means backspace,
+   * anything after it is the typed letter. Then it is reset.
+   */
+  onInput(input: HTMLInputElement): void {
+    const value = input.value;
+    input.value = ' ';
+    const sel = this.selected();
+    if (!sel) return;
+    if (!value) {
+      this.backspace(sel);
+      return;
+    }
+    const letter = this.toLetter(value.at(-1) ?? '');
+    if (!letter) return;
+    this.writeLetter(sel, letter);
+    this.advance(sel);
+  }
+
   private handleEdit(event: KeyboardEvent, sel: CellPos): void {
     if (event.key === 'Backspace') {
       event.preventDefault();

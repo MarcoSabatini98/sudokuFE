@@ -294,3 +294,25 @@
   display: block;
   margin-bottom: 0.5rem;
 }
+
+/* Phones: no column headers, each game becomes a 2x2 card (date | difficulty / result | time) */
+@media (max-width: 560px) {
+  .st-top {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .st-head {
+    display: none;
+  }
+
+  .st-row {
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 0.75rem;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .st-row > :nth-child(even) {
+    justify-self: end;
+  }
+}

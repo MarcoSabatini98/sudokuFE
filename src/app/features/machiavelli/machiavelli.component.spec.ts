@@ -115,6 +115,32 @@ describe('MachiavelliComponent', () => {
     expect(comp.state().stock.length).toBe(stockBefore); // pesca bloccata: stock invariato
   });
 
+  it('tocca e sposta: carta dalla mano a una nuova combinazione', () => {
+    const h7 = card('H', 7);
+    const d7 = card('D', 7);
+    comp.state.set(humanState([h7, d7]));
+    comp.workingHand.set([h7, d7]);
+    comp.workingTable.set([]);
+
+    comp.onCardTap(h7, comp.HAND_ID, new Event('click'));
+    expect(comp.picked()?.card).toBe(h7);
+    comp.onZoneTap(comp.NEW_MELD_ID);
+
+    expect(comp.picked()).toBeNull();
+    expect(comp.workingHand()).toEqual([d7]);
+    expect(comp.workingTable()[0].cards).toEqual([h7]);
+  });
+
+  it('tocca e sposta: ritoccare la stessa carta la deseleziona', () => {
+    const h7 = card('H', 7);
+    comp.state.set(humanState([h7]));
+    comp.workingHand.set([h7]);
+
+    comp.onCardTap(h7, comp.HAND_ID, new Event('click'));
+    comp.onCardTap(h7, comp.HAND_ID, new Event('click'));
+    expect(comp.picked()).toBeNull();
+  });
+
   it('calando l’ultima carta con tavolo valido vince senza confermare', () => {
     const h7 = card('H', 7);
     const d7 = card('D', 7);
