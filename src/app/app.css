@@ -101,6 +101,36 @@
   outline-offset: 1px;
 }
 
+.label-short {
+  display: none;
+}
+
+/* Phones: logo only, short link label, tighter pills */
+@media (max-width: 640px) {
+  .app-toolbar {
+    padding: 0 0.75rem;
+  }
+
+  .brand-text,
+  .label-long {
+    display: none;
+  }
+
+  .label-short {
+    display: inline;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .nav-link {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.88rem;
+  }
+}
+
 .app-content {
   min-height: calc(100vh - 64px);
   background: var(--clr-bg);

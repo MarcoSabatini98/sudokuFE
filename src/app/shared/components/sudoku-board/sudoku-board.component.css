@@ -1,3 +1,8 @@
+/* One cell size for grid and number bar: 52px, or 1/9 of the screen minus page padding and borders */
+:host {
+  --cell: min(52px, calc((100vw - 2rem - 6px) / 9));
+}
+
 .board-wrap {
   position: relative;
   display: inline-block;
@@ -5,16 +10,16 @@
 
 .sudoku-grid {
   display: inline-grid;
-  grid-template-columns: repeat(9, 52px);
+  grid-template-columns: repeat(9, var(--cell));
   border: 3px solid var(--clr-grid-border);
 }
 
 .cell {
-  width: 52px;
-  height: 52px;
+  width: var(--cell);
+  height: var(--cell);
   border: 1px solid var(--clr-border);
   text-align: center;
-  font-size: 1.25rem;
+  font-size: calc(var(--cell) * 0.38);
   font-weight: 600;
   cursor: pointer;
   background: var(--clr-cell-bg);
@@ -85,7 +90,7 @@
 }
 
 .notes-num {
-  font-size: 0.62rem;
+  font-size: calc(var(--cell) * 0.19);
   font-weight: 700;
   color: #1565c0;
   display: flex;
@@ -124,14 +129,14 @@
 
 .number-bar {
   display: flex;
-  width: calc(52px * 9 + 6px);
+  width: calc(var(--cell) * 9 + 6px);
   margin-top: 12px;
   justify-content: space-between;
 }
 
 .number-tile {
-  width: 52px;
-  height: 52px;
+  width: var(--cell);
+  height: var(--cell);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -172,7 +177,7 @@
 }
 
 .number-tile-digit {
-  font-size: 1.15rem;
+  font-size: calc(var(--cell) * 0.35);
   font-weight: 700;
   color: var(--clr-text-primary);
   line-height: 1;

@@ -55,6 +55,21 @@ describe('CrosswordComponent', () => {
     expect(comp.selected()).toEqual({ row: 0, col: 1 });
   });
 
+  it('input da tastiera mobile scrive la lettera e cancella con backspace', async () => {
+    const comp = await renderCrossword();
+    const input = document.createElement('input');
+    input.value = ' c';
+    comp.onInput(input);
+    expect(comp.letterAt(0, 0)).toBe('C');
+    expect(comp.selected()).toEqual({ row: 0, col: 1 });
+    expect(input.value).toBe(' ');
+
+    input.value = '';
+    comp.onInput(input);
+    expect(comp.letterAt(0, 0)).toBe('');
+    expect(comp.selected()).toEqual({ row: 0, col: 0 });
+  });
+
   it('le frecce spostano la selezione e cambiano direzione', async () => {
     const comp = await renderCrossword();
     press(comp, 'ArrowDown');

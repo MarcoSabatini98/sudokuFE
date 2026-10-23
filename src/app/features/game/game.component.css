@@ -341,3 +341,71 @@
   color: var(--clr-text-secondary);
   font-size: 0.9rem;
 }
+
+/* Below ~880px the absolute header and side panel would leave the screen:
+   header becomes a grid (title on top, back link and timer below),
+   buttons wrap in rows under the board. */
+@media (max-width: 880px) {
+  .game-container {
+    gap: 1rem;
+  }
+
+  .game-header {
+    height: auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'title title'
+      'back timer';
+    align-items: center;
+    row-gap: 0.25rem;
+  }
+
+  .header-title,
+  .header-back,
+  .header-timer {
+    position: static;
+    transform: none;
+  }
+
+  .header-title {
+    grid-area: title;
+    text-align: center;
+  }
+
+  .header-back {
+    grid-area: back;
+    justify-self: start;
+  }
+
+  .header-timer {
+    grid-area: timer;
+  }
+
+  .side-panel {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 480px;
+    margin-top: 1rem;
+  }
+
+  .error-counter {
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .side-panel button {
+    flex: 1 1 calc(50% - 0.6rem);
+    min-width: 0;
+  }
+
+  .completed-banner {
+    padding: 0.85rem 1.25rem;
+    font-size: 1.05rem;
+    text-align: center;
+  }
+}

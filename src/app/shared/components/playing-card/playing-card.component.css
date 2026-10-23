@@ -70,3 +70,24 @@
   font-weight: 700;
   letter-spacing: 0.05em;
 }
+
+/* Phones: smaller cards so hand and table melds fit more per row */
+@media (max-width: 600px) {
+  .card {
+    width: 2.9rem;
+    height: 4.15rem;
+  }
+
+  .corner {
+    font-size: 0.68rem;
+  }
+
+  .pip,
+  .joker-star {
+    font-size: 1.4rem;
+  }
+
+  .joker-label {
+    font-size: 0.5rem;
+  }
+}

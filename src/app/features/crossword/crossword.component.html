@@ -32,10 +32,26 @@
     <div class="cw-body">
       <!-- Griglia + controlli -->
       <div class="cw-main">
+        <!-- Phones only open their keyboard for a real input: cell/clue taps focus this one -->
+        <input
+          #kb
+          class="cw-kb"
+          type="text"
+          value=" "
+          aria-label="Lettera"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          (keydown)="onKeydown($event)"
+          (input)="onInput(kb)"
+          (focus)="kb.setSelectionRange(1, 1)"
+        />
         <div
           class="cw-grid"
           #grid
           tabindex="0"
+          [style.--cw-cols]="cw.cols"
           [style.grid-template-columns]="'repeat(' + cw.cols + ', var(--cw-cell))'"
           (keydown)="onKeydown($event)"
         >
@@ -48,7 +64,7 @@
                   [class.selected]="isSelected(r, c)"
                   [class.highlight]="isHighlighted(r, c)"
                   [class.wrong]="isWrong(r, c)"
-                  (click)="onCellClick(r, c); grid.focus()"
+                  (click)="onCellClick(r, c); kb.focus()"
                   (keyup.enter)="onCellClick(r, c)"
                 >
                   @if (cellNumber(r, c); as n) {
@@ -80,7 +96,7 @@
               <li
                 tabindex="0"
                 [class.active]="isClueActive(entry)"
-                (click)="onClueClick(entry); grid.focus()"
+                (click)="onClueClick(entry); kb.focus()"
                 (keyup.enter)="onClueClick(entry); grid.focus()"
               >
                 <strong class="cw-clue-num">{{ entry.number }}.</strong>
@@ -99,7 +115,7 @@
               <li
                 tabindex="0"
                 [class.active]="isClueActive(entry)"
-                (click)="onClueClick(entry); grid.focus()"
+                (click)="onClueClick(entry); kb.focus()"
                 (keyup.enter)="onClueClick(entry); grid.focus()"
               >
                 <strong class="cw-clue-num">{{ entry.number }}.</strong>

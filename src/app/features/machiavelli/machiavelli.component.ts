@@ -91,6 +91,11 @@ export class MachiavelliComponent {
   /** Ordine preferito della mano (id carte) impostato con "Ordina mano"; null = ordine di distribuzione. */
   private handOrder: string[] | null = null;
 
+  /** Touch: tieni premuto 300ms per trascinare, uno swipe veloce scorre la pagina. */
+  readonly dragDelay = { touch: 300, mouse: 0 };
+  /** Carta toccata (tocca e sposta), in attesa della destinazione. */
+  readonly picked = signal<{ card: Card; from: string } | null>(null);
+
   /** Id della scala "presa" col doppio click, in attesa di essere unita a un'altra. */
   readonly carriedMeldId = signal<string | null>(null);
   /** Storico degli stati di lavoro del turno, per annullare l'ultima mossa. */
@@ -172,6 +177,7 @@ export class MachiavelliComponent {
     this.workingHand.set(hand);
     this.startHandIds = new Set(hand.map((c) => c.id));
     this.carriedMeldId.set(null);
+    this.picked.set(null);
     this.moveHistory.set([]);
   }
 
@@ -203,6 +209,7 @@ export class MachiavelliComponent {
     this.workingTable.set(prev.table);
     this.workingHand.set(prev.hand);
     this.carriedMeldId.set(null);
+    this.picked.set(null);
   }
 
   isMeldValid(meld: Meld): boolean {
@@ -230,6 +237,10 @@ export class MachiavelliComponent {
 
   /** Click su una scala: se c'è una scala "presa", prova a unirle. */
   onMeldClick(meld: Meld): void {
+    if (this.picked()) {
+      this.onZoneTap(meld.id);
+      return;
+    }
     const carried = this.carriedMeldId();
     if (!carried || meld.id === carried) return;
     this.mergeRuns(carried, meld.id);
@@ -267,13 +278,39 @@ export class MachiavelliComponent {
     );
   }
 
+  // -- Tocca e sposta (pensato per il telefono, funziona anche col mouse) ------
+
+  /** Tocco su una carta: la seleziona, la deseleziona, o (se ne hai già una
+   *  presa da un'altra zona) sposta quella nella zona di questa carta. */
+  onCardTap(card: Card, from: string, event: Event): void {
+    if (!this.isHumanTurn() || this.carriedMeldId()) return; // lascia passare il click per l'unione scale
+    event.stopPropagation();
+    const picked = this.picked();
+    if (picked && picked.from !== from) {
+      this.onZoneTap(from);
+      return;
+    }
+    this.picked.set(picked?.card.id === card.id ? null : { card, from });
+  }
+
+  /** Tocco su combinazione, mano o "nuova combinazione": ci sposta la carta presa. */
+  onZoneTap(to: string): void {
+    const picked = this.picked();
+    if (!picked) return;
+    this.picked.set(null);
+    if (picked.from !== to) this.moveCard(picked.card, picked.from, to);
+  }
+
   // -- Drag & drop -----------------------------------------------------------
 
   drop(event: CdkDragDrop<Card[]>): void {
-    const fromId = event.previousContainer.id;
-    const toId = event.container.id;
     const dragged = event.item.data as Card | undefined;
-    if (!dragged) return;
+    if (dragged) this.moveCard(dragged, event.previousContainer.id, event.container.id);
+  }
+
+  /** Sposta una carta tra mano e combinazioni (usato da drag e da tocca-e-sposta). */
+  private moveCard(dragged: Card, fromId: string, toId: string): void {
+    this.picked.set(null);
 
     // In mano possono tornare solo le carte calate in questo turno (non quelle dei turni passati)
     if (toId === HAND_ID && fromId !== HAND_ID && !this.startHandIds.has(dragged.id)) {
