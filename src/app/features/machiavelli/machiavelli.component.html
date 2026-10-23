@@ -68,7 +68,7 @@
   </div>
 
   <!-- Tavolo -->
-  <div class="table-area" cdkDropListGroup>
+  <div class="table-area" cdkDropListGroup [class.picking]="picked()">
     <div class="melds" (mousemove)="onFeltMove($event)">
       @for (meld of workingTable(); track meld.id) {
         <div
@@ -87,7 +87,15 @@
           (keyup.enter)="onMeldClick(meld)"
         >
           @for (card of meld.cards; track card.id) {
-            <app-playing-card cdkDrag [cdkDragData]="card" [cdkDragDisabled]="!isHumanTurn()" [card]="card" />
+            <app-playing-card
+              cdkDrag
+              [cdkDragStartDelay]="dragDelay"
+              [cdkDragData]="card"
+              [cdkDragDisabled]="!isHumanTurn()"
+              [card]="card"
+              [class.picked]="picked()?.card?.id === card.id"
+              (click)="onCardTap(card, meld.id, $event)"
+            />
           }
         </div>
       }
@@ -101,6 +109,7 @@
         [cdkDropListData]="emptyZone"
         [cdkDropListDisabled]="!isHumanTurn()"
         (cdkDropListDropped)="drop($event)"
+        (click)="onZoneTap(NEW_MELD_ID)"
       >
         <span class="placeholder">+ nuova combinazione</span>
       </div>
@@ -111,6 +120,7 @@
       <div class="hand-label">
         La tua mano ({{ workingHand().length }})
         @if (thinking()) { <span class="thinking">· i bot stanno giocando…</span> }
+        @if (picked()) { <span class="pick-hint">· tocca dove spostarla</span> }
       </div>
       <div
         class="hand"
@@ -120,9 +130,18 @@
         [cdkDropListData]="workingHand()"
         [cdkDropListDisabled]="!isHumanTurn()"
         (cdkDropListDropped)="drop($event)"
+        (click)="onZoneTap(HAND_ID)"
       >
         @for (card of workingHand(); track card.id) {
-          <app-playing-card cdkDrag [cdkDragData]="card" [cdkDragDisabled]="!isHumanTurn()" [card]="card" />
+          <app-playing-card
+            cdkDrag
+            [cdkDragStartDelay]="dragDelay"
+            [cdkDragData]="card"
+            [cdkDragDisabled]="!isHumanTurn()"
+            [card]="card"
+            [class.picked]="picked()?.card?.id === card.id"
+            (click)="onCardTap(card, HAND_ID, $event)"
+          />
         }
       </div>
     </div>

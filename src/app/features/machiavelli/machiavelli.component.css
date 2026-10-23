@@ -400,7 +400,8 @@
   color: var(--clr-text-primary);
 }
 
-.thinking {
+.thinking,
+.pick-hint {
   font-weight: 400;
   color: var(--clr-text-secondary);
   font-style: italic;
@@ -466,6 +467,24 @@
 /* Drag & drop */
 app-playing-card {
   cursor: grab;
+  -webkit-touch-callout: none; /* niente menu iOS durante la pressione lunga */
+  transition: transform 0.12s ease;
+}
+
+/* Tocca e sposta: carta presa sollevata, zone di arrivo cliccabili */
+app-playing-card.picked {
+  transform: translateY(-0.45rem);
+  filter: drop-shadow(0 0 6px var(--mac-gold));
+}
+
+.table-area.picking .meld,
+.table-area.picking .hand {
+  cursor: pointer;
+}
+
+.table-area.picking .new-meld {
+  border-style: solid;
+  background: color-mix(in srgb, var(--mac-gold) 12%, transparent);
 }
 
 .cdk-drag-preview {
